@@ -1,5 +1,7 @@
 // Service Worker for Londyn LeadDev PWA
-const CACHE_NAME = 'londyn-leaddev-v1';
+// Version: 2 - bump this number to trigger update
+const CACHE_VERSION = 2;
+const CACHE_NAME = `londyn-leaddev-v${CACHE_VERSION}`;
 const URLS_TO_CACHE = [
   './',
   './londyn-leaddev.html',
@@ -12,6 +14,7 @@ const URLS_TO_CACHE = [
 
 // Install: cache all static assets
 self.addEventListener('install', event => {
+  console.log('[SW] Installing version', CACHE_VERSION);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -22,16 +25,29 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate: clean up old caches
+// Activate: clean up old caches and notify clients
 self.addEventListener('activate', event => {
+  console.log('[SW] Activating version', CACHE_VERSION);
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames
-          .filter(name => name !== CACHE_NAME)
-          .map(name => caches.delete(name))
+          .filter(name => name.startsWith('londyn-leaddev-') && name !== CACHE_NAME)
+          .map(name => {
+            console.log('[SW] Deleting old cache:', name);
+            return caches.delete(name);
+          })
       );
-    }).then(() => self.clients.claim())
+    })
+    .then(() => self.clients.claim())
+    .then(() => {
+      // Notify all clients about the update
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'UPDATE_AVAILABLE', version: CACHE_VERSION });
+        });
+      });
+    })
   );
 });
 
@@ -62,4 +78,11 @@ self.addEventListener('fetch', event => {
         });
       })
   );
+});
+
+// Handle messages from clients
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });

@@ -45,6 +45,22 @@
   .online-badge::before{content:""; width:8px; height:8px; border-radius:50%; background:#4ade80; box-shadow:0 0 6px #4ade80;}
   .online-badge.offline::before{background:#f87171; box-shadow:0 0 6px #f87171;}
   .online-badge.offline{color:#fca5a5;}
+  
+  /* Refresh button */
+  .refresh-btn{position:absolute; right:85px; top:22px; background:none; border:none; color:#b9c0d0; font-size:16px; cursor:pointer; padding:4px; opacity:0.8; transition:transform 0.3s, opacity 0.2s;}
+  .refresh-btn:hover{opacity:1;}
+  .refresh-btn:active{transform:rotate(180deg); opacity:1;}
+  .refresh-btn.spinning{animation:spin 0.8s linear infinite;}
+  @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  
+  /* Update toast */
+  .update-toast{position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(100px); max-width:340px; width:calc(100% - 32px);
+    background:var(--ink); color:var(--paper); padding:12px 16px; border-radius:14px; box-shadow:0 4px 20px rgba(0,0,0,0.3);
+    display:flex; align-items:center; justify-content:space-between; gap:12px; z-index:1000; opacity:0; transition:transform 0.3s ease, opacity 0.3s ease;}
+  .update-toast.show{transform:translateX(-50%) translateY(0); opacity:1;}
+  .update-toast .msg{font-size:13px; display:flex; align-items:center; gap:8px;}
+  .update-toast .refresh-now{background:var(--red); color:#fff; border:none; padding:8px 14px; border-radius:10px; font-weight:600; font-size:12px; cursor:pointer; font-family:var(--body);}
+  .update-toast .refresh-now:active{opacity:0.8;}
 
   /* Day pills */
   .pills{display:flex; gap:8px; overflow-x:auto; padding:14px 16px 6px; scrollbar-width:none;}
@@ -155,11 +171,18 @@
 <div class="app">
   <header>
     <div class="stripe"></div>
+    <button class="refresh-btn" id="refresh-btn" title="Odśwież aplikację">🔄</button>
     <div class="online-badge" id="online-status">online</div>
     <div class="kicker">Plan wyjazdu</div>
     <h1>Londyn <em>·</em> LeadDev</h1>
     <div class="dates">31 maja – 4 czerwca 2026 · baza: Canary Wharf</div>
   </header>
+  
+  <!-- Update toast -->
+  <div class="update-toast" id="update-toast">
+    <span class="msg">🆕 Nowa wersja dostępna!</span>
+    <button class="refresh-now" id="refresh-now">Odśwież</button>
+  </div>
 
   <!-- PLAN -->
   <div id="planwrap">
@@ -540,12 +563,79 @@ window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
 
+/* ---------- REFRESH & UPDATE HANDLING ---------- */
+const refreshBtn = document.getElementById('refresh-btn');
+const updateToast = document.getElementById('update-toast');
+const refreshNowBtn = document.getElementById('refresh-now');
+
+// Force refresh - clears cache and reloads
+async function forceRefresh() {
+  refreshBtn.classList.add('spinning');
+  
+  try {
+    // Unregister service workers
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(reg => reg.unregister()));
+    }
+    
+    // Clear all caches
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+    }
+    
+    // Reload page
+    location.reload(true);
+  } catch (err) {
+    console.error('[Refresh] Error:', err);
+    location.reload(true);
+  }
+}
+
+// Manual refresh button
+refreshBtn.addEventListener('click', forceRefresh);
+
+// Toast refresh button
+refreshNowBtn.addEventListener('click', () => {
+  updateToast.classList.remove('show');
+  forceRefresh();
+});
+
+// Show update toast
+function showUpdateToast() {
+  updateToast.classList.add('show');
+  // Auto-hide after 10 seconds
+  setTimeout(() => updateToast.classList.remove('show'), 10000);
+}
+
 /* ---------- SERVICE WORKER ---------- */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('[SW] Registered:', reg.scope))
+      .then(reg => {
+        console.log('[SW] Registered:', reg.scope);
+        
+        // Check for updates
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New version available
+              console.log('[SW] New version available');
+              showUpdateToast();
+            }
+          });
+        });
+      })
       .catch(err => console.log('[SW] Registration failed:', err));
+    
+    // Listen for messages from Service Worker
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
+        showUpdateToast();
+      }
+    });
   });
 }
 </script>
