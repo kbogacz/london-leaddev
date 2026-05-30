@@ -53,6 +53,7 @@
   .refresh-btn:active{opacity:1;}
   .refresh-btn.spinning .icon{animation:spin 0.8s linear infinite;}
   @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  .cache-version{font-size:10px; color:#6b7280; font-family:var(--body);}
   
   /* Update toast */
   .update-toast{position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(100px); max-width:340px; width:calc(100% - 32px);
@@ -184,6 +185,7 @@
     <div class="status-group">
       <div class="online-badge" id="online-status">online</div>
       <button class="refresh-btn" id="refresh-btn" title="Odśwież aplikację"><span class="icon">🔄</span></button>
+      <span class="cache-version" id="cache-version"></span>
     </div>
     <div class="kicker">Plan wyjazdu</div>
     <h1>Londyn <em>·</em> LeadDev</h1>
@@ -607,6 +609,20 @@ async function forceRefresh() {
 
 // Manual refresh button
 refreshBtn.addEventListener('click', forceRefresh);
+
+// Cache version display
+const cacheVersionEl = document.getElementById('cache-version');
+async function updateCacheVersion() {
+  if ('caches' in window) {
+    const names = await caches.keys();
+    const match = names.find(n => n.startsWith('londyn-leaddev-v'));
+    if (match) {
+      const v = match.replace('londyn-leaddev-v', '');
+      cacheVersionEl.textContent = 'v' + v;
+    }
+  }
+}
+updateCacheVersion();
 
 // Toast refresh button
 refreshNowBtn.addEventListener('click', () => {

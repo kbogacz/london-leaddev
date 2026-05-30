@@ -1,6 +1,6 @@
 // Service Worker for Londyn LeadDev PWA
-// Version: 6 - bump this number to trigger update
-const CACHE_VERSION = 6;
+// Version: 7 - bump this number to trigger update
+const CACHE_VERSION = 7;
 const CACHE_NAME = `londyn-leaddev-v${CACHE_VERSION}`;
 const URLS_TO_CACHE = [
   './',
