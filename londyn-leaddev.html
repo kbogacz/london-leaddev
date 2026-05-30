@@ -343,7 +343,7 @@ const DAYS = [
    {t:'Big Ben & Westminster', icon:'🕰️', lat:51.5007,lng:-0.1246, dur:'~20 min', anc:'🕖 ~18:55–19:15', bike:true, note:'Zdjęcia przy Parlamencie. Cycleway 3 prowadzi prosto tu.', dock:'Westminster Bridge / Storey\u2019s Gate', see:['Westminster Bridge — widok na Parlament i South Bank','Gotycka fasada Parlamentu od rzeki','Victoria Tower Gardens — rzeźba Rodina, gratis'], next:{m:'🚶',x:'Przejdź Westminster Bridge na South Bank ~5 min (rower zostaw lub przeprowadź)'}},
    {t:'South Bank', icon:'🎡', lat:51.5033,lng:-0.1196, dur:'~20 min', anc:'🕖 ~19:20–19:40', note:'Szybki spacer — widoki, vibe. Nie ma tu ścieżek rowerowych (deptak). Jeśli zostawiłeś rower — weź nowy przy Jubilee Gardens.', see:['Skate park pod Hungerford Bridge','Panorama City od południa','London Eye w tle'], next:{m:'🚲',x:'Nowy e-bike z doku Jubilee Gardens → St James\u2019s Park (~15 min)'}},
    {t:'St James\u2019s Park → Buckingham', icon:'👑', lat:51.5014,lng:-0.1419, dur:'~70 min', anc:'🌅 zachód ~21:09', bike:true, note:'<b>Złota godzina!</b> Ławki nad jeziorem, pelikany, The Mall bez aut. <b>Cycleway 3</b> przez Birdcage Walk i Constitution Hill — segregowana ścieżka aż do Hyde Park Corner.', dock:'St James\u2019s Park Station / Buckingham Gate', see:['Widok na Buckingham z mostku przez jezioro — kadr filmowy','Pelikany przy jeziorku — tu od 1664 roku','The Mall — perspektywa prosto do pałacu'], next:{m:'🚲',x:'E-bike do Hyde Park Corner → oddanie roweru (~10 min)'}},
-   {t:'Kolacja — Victoria / Belgravia', icon:'🍽️', lat:51.4985,lng:-0.1465, dur:'~45 min', anc:'🕘 ~21:30–22:15', note:'Po zachodzie słońca, spokojnie. Okolice Victoria — po drodze do metra.', food:[{n:'The Thomas Cubitt',desc:'⭐ 4.5 · Gastropub brytyjski, 10 min od Hyde Park Corner. ~£20–30',lat:51.4963,lng:-0.1505},{n:'Ebury Restaurant & Wine Bar',desc:'⭐ 4.3 · Europejska kuchnia, kameralna. ~£25–35',lat:51.4955,lng:-0.1482},{n:'Coś przy Victoria Station',desc:'Różne opcje fast-casual, po drodze do metra',lat:51.4952,lng:-0.1439}], next:{m:'🚇',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#0098d8"></span><span class="stations">Victoria → Green Park</span></div><div class="dir">Victoria Line · 1 przystanek · ~2 min</div><div class="xfer">↳ Green Park — przesiadka</div><div class="leg"><span class="ln" style="background:#868f98"></span><span class="stations">→ Canary Wharf</span></div><div class="dir">Jubilee kier. Stratford · 7 przystanków · ~15 min</div><div class="total">⏱ Razem ~25 min</div></div>'}},
+   {t:'Kolacja — Victoria / Belgravia', icon:'🍽️', lat:51.4985,lng:-0.1465, dur:'~45 min', anc:'🕘 ~21:30–22:15', note:'Po zachodzie słońca, spokojnie. Okolice Victoria — po drodze do metra.', food:[{n:'The Thomas Cubitt',desc:'⭐ 4.5 · Gastropub brytyjski, 10 min od Hyde Park Corner. ~£20–30',lat:51.4963,lng:-0.1505},{n:'Ebury Restaurant & Wine Bar',desc:'⭐ 4.3 · Europejska kuchnia, kameralna. ~£25–35',lat:51.4955,lng:-0.1482},{n:'Coś przy Victoria Station',desc:'Różne opcje fast-casual, po drodze do metra',lat:51.4952,lng:-0.1439}], next:{m:'🚇',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#ffd329;color:#000"></span><span class="stations">Victoria → Liverpool Street</span></div><div class="dir">Circle kier. Aldgate · 7 przystanków · ~20 min</div><div class="total">⏱ Prosto do bagażu!</div></div>'}},
    {t:'Liverpool Street — bagaż', icon:'🧳', lat:51.5178,lng:-0.0817, anc:'🕙 ~22:30', note:'Odbiór bagażu z przechowalni. Potem ostatni odcinek do hotelu.', next:{m:'🚇',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#9364cc"></span><span class="stations">Liverpool Street → Canary Wharf</span></div><div class="dir">Elizabeth kier. Abbey Wood · 2 przystanki · ~6 min</div></div>'}},
    {t:'Hotel — South Quay', icon:'🛏️', lat:51.5006,lng:-0.0203, anc:'🕚 ~23:15', note:'Meta pierwszego dnia! Zasłużony odpoczynek po 8h zwiedzania.'},
  ]},
@@ -451,21 +451,26 @@ const STATIONS={
   'Victoria':[51.4965,-0.1444],'London Bridge':[51.5053,-0.0865],
   'Tower Hill':[51.5093,-0.0769],'Embankment':[51.5074,-0.1223],
   'Farringdon':[51.5203,-0.1049],'Aldgate':[51.5141,-0.0754],
-  'North Greenwich':[51.5030,0.0033],
+  'North Greenwich':[51.5030,0.0033],'Baker Street':[51.5226,-0.1571],
+  'St Paul\u2019s':[51.5146,-0.0973],'Tottenham Court Road':[51.5165,-0.1310],
+  'Chancery Lane':[51.5185,-0.1111],
 };
 function linkStations(h){
   if(!h) return h;
   let o=h;
-  let firstLinked = false;
+  // Znajdź pierwszą stację według pozycji w tekście (nie według kolejności w słowniku)
+  let firstMatch = null;
+  let firstPos = Infinity;
   for(const[n,[la,ln]] of Object.entries(STATIONS)){
-    if(o.includes(n)){
-      if(!firstLinked){
-        // Pierwsza stacja - duży klikalny link z pinem
-        o=o.replace(n, `<a href="${gmaps(la,ln)}" target="_blank" class="station-link">📍 ${n}</a>`);
-        firstLinked = true;
-      }
-      // Pozostałe stacje - bez linku (przesiadki)
+    const pos = h.indexOf(n);
+    if(pos !== -1 && pos < firstPos){
+      firstPos = pos;
+      firstMatch = {name: n, lat: la, lng: ln};
     }
+  }
+  // Zamień tylko pierwszą znalezioną stację na klikalny link z pinem
+  if(firstMatch){
+    o = o.replace(firstMatch.name, `<a href="${gmaps(firstMatch.lat,firstMatch.lng)}" target="_blank" class="station-link">📍 ${firstMatch.name}</a>`);
   }
   return o;
 }
