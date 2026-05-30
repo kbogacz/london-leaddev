@@ -202,7 +202,6 @@
   .sunset-banner .sb-current{display:flex; flex-direction:column; gap:2px; margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.15); font-size:12px;}
   .sunset-banner .sb-now{color:#4ade80; font-weight:600;}
   .sunset-banner .sb-next{color:rgba(255,255,255,0.7);}
-  .sunset-banner .sb-demo{font-size:10px; background:rgba(255,255,255,0.15); padding:2px 6px; border-radius:4px; margin-left:8px;}
   
   /* Timeline card states */
   .blk.is-past .card{opacity:0.5; background:#f0ebe0;}
@@ -211,14 +210,6 @@
   .blk.is-current .dot{background:#4ade80 !important; border-color:#4ade80 !important; box-shadow:0 0 8px rgba(74,222,128,0.5);}
   .blk.is-next .card{border:2px solid #60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,0.15), var(--shadow);}
   .blk.is-next .dot{border-color:#60a5fa !important;}
-  
-  /* Demo controls */
-  .demo-controls{display:none; margin:0 16px 8px; padding:10px; background:#fff3cd; border:1px solid #ffc107; border-radius:10px; font-size:12px;
-    position:sticky; top:170px; z-index:99;
-  }
-  .demo-controls.active{display:block;}
-  .demo-controls input[type="range"]{width:100%; margin:6px 0;}
-  .demo-controls .demo-time{font-weight:700; font-size:14px; color:#856404;}
 </style>
 </head>
 <body>
@@ -261,13 +252,6 @@
         <span class="sb-next">➡️ --</span>
       </div>
       <div class="sb-tip" id="sb-tip" style="display:none"></div>
-    </div>
-    
-    <!-- Demo controls (do testowania) -->
-    <div class="demo-controls" id="demo-controls">
-      <b>Demo mode:</b> <span id="demo-day-label">Symuluj czas</span><br>
-      <input type="range" id="demo-slider" min="9" max="23.5" step="0.0833" value="15">
-      <div>Symulowany czas: <span class="demo-time" id="demo-time">15:00</span></div>
     </div>
     
     <section class="view on" id="v-plan"><div class="tl" id="tl"></div></section>
@@ -363,11 +347,11 @@ const DAYS = [
  ]},
  { id:'pon', label:'Poniedziałek', date:'01.06', sub:'Muzea + Herkules', planned:true, blocks:[
    {t:'Hotel → South Kensington', icon:'🚇', lat:51.4941,lng:-0.1738, note:'Jubilee: Canary Wharf → Green Park, przesiadka Piccadilly → South Kensington.', next:{m:'🚆',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#868f98"></span><span class="stations">Canary Wharf → Green Park</span></div><div class="dir">Jubilee kier. Stanmore · 7 przystanków · ~15 min</div><div class="xfer">↳ Green Park — przesiadka</div><div class="leg"><span class="ln" style="background:#0019a8"></span><span class="stations">→ South Kensington</span></div><div class="dir">Piccadilly kier. Heathrow · 3 przystanki · ~7 min</div><div class="total">⏱ Razem ~35 min (z przesiadką)</div></div>'}},
-   {t:'Śniadanie — South Ken', icon:'☕', lat:51.4941,lng:-0.1738, dur:'~45 min', note:'Wstajesz wcześnie, masz luźny bufor. Do muzeów dojdziesz krytym tunelem ze stacji — sucho.', food:[{n:'Daquise',desc:'Polska kawiarnia od 1947r — śniadania, Thurloe St SW7',lat:51.4950,lng:-0.1718},{n:'Bumpkin South Kensington',desc:'Brytyjskie klasyczne śniadania, Old Brompton Rd',lat:51.4944,lng:-0.1805},{n:'Exhibition Road Coffee',desc:'Specialty coffee przy dzielnicy muzealnej',lat:51.4960,lng:-0.1738}], next:{m:'🚶',x:'5 min do V&A'}},
+   {t:'Śniadanie — South Ken', icon:'☕', lat:51.4941,lng:-0.1738, dur:'~45 min', note:'Wstajesz wcześnie, masz luźny bufor. Do muzeów dojdziesz krytym tunelem ze stacji — sucho.', food:[{n:'Daquise',desc:'⭐ 4.5 · Polska kawiarnia od 1947. Polecane: placki ziemniaczane, jajecznica, barszcz',lat:51.4950,lng:-0.1718},{n:'Bumpkin South Kensington',desc:'⭐ 4.2 · Brytyjskie klasyki. Polecane: full English breakfast, eggs Benedict',lat:51.4944,lng:-0.1805},{n:'Exhibition Road Coffee',desc:'⭐ 4.4 · Specialty coffee. Polecane: flat white, croissant maślany',lat:51.4960,lng:-0.1738}], next:{m:'🚶',x:'5 min do V&A'}},
    {t:'V&A — sztuka użytkowa i design', icon:'🏛️', cls:'muz', lat:51.4966,lng:-0.1722, dur:'~2–2,5h', anc:'🕙 10:00–17:45', opt:'opcja: Schiaparelli £28', note:'Moda, ceramika, biżuteria, Cast Courts. Stała kolekcja gratis.', see:['Cast Courts (Sala 46A) — gipsowe odlewy kolumny Trajana i Dawida Michała Anioła (skala szokuje)','Bollinger Jewellery Gallery (Sala 91) — biżuteria od starożytności po dziś','Galerie Mody — Balenciaga, Vivienne Westwood, Chanel w jednym miejscu'], next:{m:'🚆',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#007d32"></span><span class="stations">South Kensington → Blackfriars</span></div><div class="dir">District kier. Upminster · 6 przystanków · ~18 min</div><div class="total">+ 🚶 8 min do rzeki</div></div>', alt:'(po drodze wychodzisz prosto nad rzekę)'}},
-   {t:'Lunch — Bankside', icon:'🍽️', lat:51.5055,lng:-0.0905, dur:'~1h', note:'Nadrzecznie; obok masz Borough Market.', food:[{n:'Padella',desc:'Świeży makaron, kultowy adres. 6 Southwark St SE1',lat:51.5052,lng:-0.0931},{n:'Arabica Bar & Kitchen',desc:'Lewantyńska kuchnia, taras. Borough Market',lat:51.5054,lng:-0.0910},{n:'Borough Market',desc:'Stragany z całego świata — obiad w marszu',lat:51.5055,lng:-0.0903}], next:{m:'🚶',x:'~6 min wzdłuż rzeki do Tate'}},
+   {t:'Lunch — Bankside', icon:'🍽️', lat:51.5055,lng:-0.0905, dur:'~1h', note:'Nadrzecznie; obok masz Borough Market.', food:[{n:'Padella',desc:'⭐ 4.6 · Świeży makaron, kultowy. Polecane: pici cacio e pepe, beef shin pappardelle',lat:51.5052,lng:-0.0931},{n:'Arabica Bar & Kitchen',desc:'⭐ 4.5 · Lewantyńska kuchnia. Polecane: shakshuka, lamb shawarma, hummus',lat:51.5054,lng:-0.0910},{n:'Borough Market',desc:'⭐ 4.6 · Stragany z całego świata. Polecane: Kappacasein raclette, Bread Ahead doughnuts',lat:51.5055,lng:-0.0903}], next:{m:'🚶',x:'~6 min wzdłuż rzeki do Tate'}},
    {t:'Tate Modern — sztuka nowoczesna', icon:'🖼️', cls:'muz', lat:51.5076,lng:-0.0994, dur:'~2h', anc:'🕙 od 10:00', opt:'opcja: Tracey Emin', note:'Dawna elektrownia, Turbine Hall. Stała kolekcja gratis.', see:['Turbine Hall — gigantyczna sezonowa instalacja artystyczna (wstęp wolny)','Poziom 10 — panorama 360° na Londyn i Tower Bridge (wstęp wolny, winda)','The Tanks — podziemne galerie w dawnych zbiornikach ropy, inne klimaty'], next:{m:'🚶',x:'Millennium Bridge → St Paul\u2019s → Covent Garden, <b>~20 min</b>', alt:'jak leje — Tube jako sucha alternatywa'}},
-   {t:'Covent Garden + kolacja', icon:'🛍️', lat:51.5121,lng:-0.1226, dur:'~1,5h', note:'Zadaszona hala, knajpy w promieniu 5 min od teatru.', food:[{n:'Rules Restaurant',desc:'Najstarsza restauracja Londynu (1798), dziczyzna, klasyka. Maiden Lane WC2E',lat:51.5126,lng:-0.1224},{n:'J. Sheekey',desc:'Legendarne owoce morza, atmosfera teatralna. St Martin\u2019s Court',lat:51.5112,lng:-0.1259},{n:'Frenchie Covent Garden',desc:'Nowoczesna kuchnia franko-brytyjska. 16 Henrietta St WC2E',lat:51.5122,lng:-0.1227}], next:{m:'🚶',x:'~5 min do teatru'}},
+   {t:'Covent Garden + kolacja', icon:'🛍️', lat:51.5121,lng:-0.1226, dur:'~1,5h', note:'Zadaszona hala, knajpy w promieniu 5 min od teatru.', food:[{n:'Rules Restaurant',desc:'⭐ 4.4 · Najstarsza restauracja Londynu (1798). Polecane: game pie, beef Wellington, sticky toffee pudding',lat:51.5126,lng:-0.1224},{n:'J. Sheekey',desc:'⭐ 4.5 · Legendarne owoce morza. Polecane: fish pie, Dover sole, fruits de mer',lat:51.5112,lng:-0.1259},{n:'Frenchie Covent Garden',desc:'⭐ 4.4 · Franko-brytyjska. Polecane: burrata, duck breast, Paris-Brest',lat:51.5122,lng:-0.1227}], next:{m:'🚶',x:'~5 min do teatru'}},
    {t:'Herkules', icon:'🎭', cls:'fix', lat:51.5128,lng:-0.1201, anc:'🎭 19:30', note:'Theatre Royal Drury Lane, ~2h10 z przerwą (koniec ~21:40).', next:{m:'🚇',x:'<div class="transit"><b>Opcja A — szybsza:</b><div class="leg">🚶 Holborn (8 min pieszo od teatru)</div><div class="leg">🚇 <span class="ln" style="background:#dc241f"></span><span class="stations">Holborn → Bank</span></div><div class="dir">Central kier. Epping · 2 przystanki · ~4 min</div><div class="xfer">↳ Bank — przesiadka na DLR</div><div class="leg"><span class="ln" style="background:#00afad"></span><span class="stations">→ South Quay</span></div><div class="dir">DLR kier. Lewisham · 5 przystanków · ~12 min</div><div class="total">⏱ Razem ~25 min</div></div>', alt:'<div class="transit"><b>Opcja B:</b><div class="leg">🚶 Covent Garden (5 min pieszo)</div><div class="leg">🚇 <span class="ln" style="background:#0019a8"></span><span class="stations">Covent Garden → Green Park</span></div><div class="dir">Piccadilly kier. Cockfosters · 2 przystanki · ~4 min</div><div class="xfer">↳ Green Park — przesiadka</div><div class="leg"><span class="ln" style="background:#868f98"></span><span class="stations">→ Canary Wharf</span></div><div class="dir">Jubilee kier. Stratford · 7 przystanków · ~15 min</div><div class="total">⏱ Razem ~30 min + 🚶 8 min do hotelu</div></div>'}},
  ]},
  { id:'wt', label:'Wtorek', date:'02.06', sub:'Konferencja dzień 1', planned:true, blocks:[
@@ -387,13 +371,18 @@ const DAYS = [
    {t:'Hotel — South Quay', icon:'🛏️', lat:51.5006,lng:-0.0203, anc:'~23:00 w hotelu', note:'Spokojny koniec wieczoru.'},
  ]},
  { id:'czw', label:'Czwartek', date:'04.06', sub:'Ostatni dzień + wylot', planned:true, blocks:[
-   {t:'Pobudka & pakowanie', icon:'🧳', lat:51.5006,lng:-0.0203, anc:'☀️ ~09:00', note:'Spokojny poranek — masz cały dzień. Spakuj się, zostaw bagaż w lobby (late checkout lub przechowalnia w recepcji).'},
-   {t:'Śniadanie — Canary Wharf', icon:'☕', lat:51.5050,lng:-0.0198, dur:'~45 min', note:'Ostatnia kawa w dzielnicy. Znasz już miejsca.', food:[{n:'WatchHouse Cabot Place',desc:'⭐ 4.7 · Specialty coffee + bakes',lat:51.5046,lng:-0.0196},{n:'Caravan Canary Wharf',desc:'⭐ 4.5 · Pełne śniadanie, własna palarnia',lat:51.5058,lng:-0.0206},{n:'The Breakfast Club',desc:'Kultowe londyńskie śniadania, Canary Wharf',lat:51.5052,lng:-0.0189}], next:{m:'🚶',x:'Wolny spacer po okolicy lub do centrum'}},
-   {t:'Opcja: ostatnie atrakcje', icon:'🏙️', dur:'kilka godzin', note:'Masz ~6–7 godzin do wyjazdu. Propozycje na dzień:', see:['Sky Garden (bezpłatny, rezerwacja online) — panorama Londynu z 35 piętra','Greenwich — krótki rejs Thames Clipper z Canary Wharf (~10 min), Royal Observatory, czas południka 0°','Borough Market — ostatni lunch, stragany, klimat (czynne czw od 10:00)','British Museum — gratis, wielkie hity w 2–3h (Rosetta Stone, marmury Partenonu)']},
-   {t:'Lunch', icon:'🍽️', dur:'~1h', anc:'🕐 ~13:00–14:00', note:'Gdziekolwiek jesteś — zjedz spokojnie ostatni londyński posiłek.'},
-   {t:'Powrót po bagaż', icon:'🧳', lat:51.5006,lng:-0.0203, anc:'🕓 ~16:00', note:'Wróć do hotelu, odbierz bagaż z lobby/przechowalni.', next:{m:'🚇',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#9364cc"></span><span class="stations">Canary Wharf → Liverpool Street</span></div><div class="dir">Elizabeth kier. Shenfield · 2 przystanki · ~6 min</div></div>'}},
-   {t:'Liverpool Street → Stansted', icon:'🚆', lat:51.5178,lng:-0.0817, anc:'🕔 ~17:00 pociąg', note:'Stansted Express co 15 min. Podróż ~47 min. Będziesz na lotnisku ~17:50.', next:{m:'🚆',x:'<div class="transit"><div class="leg">🚆 <span class="ln" style="background:#f47b20"></span><span class="stations">Liverpool Street → Stansted Airport</span></div><div class="dir">Stansted Express · 1 przystanek · ~47 min</div></div>'}},
-   {t:'Stansted Airport', icon:'✈️', lat:51.8860,lng:0.2389, anc:'🛫 21:20 → Poznań', note:'Check-in online zrobiony? Kontrola bezpieczeństwa, może ostatnie zakupy w Duty Free. Lot ~2h, lądowanie 00:20 w Poznaniu.'},
+   {t:'Pobudka & pakowanie', icon:'🧳', lat:51.5006,lng:-0.0203, anc:'☀️ ~08:30', note:'Spakuj się, zostaw bagaż w lobby (late checkout lub przechowalnia w recepcji). Dzień pełen niestandardowych atrakcji!'},
+   {t:'Śniadanie — Canary Wharf', icon:'☕', lat:51.5050,lng:-0.0198, dur:'~30 min', anc:'🕘 ~09:00', note:'Szybkie śniadanie przed wyjazdem.', food:[{n:'WatchHouse Cabot Place',desc:'⭐ 4.7 · Specialty coffee + bakes. Polecane: La Negrita pour-over, financier z matcha',lat:51.5046,lng:-0.0196},{n:'Caravan Canary Wharf',desc:'⭐ 4.5 · Pełne śniadanie. Polecane: shakshuka, corn hash z chorizem',lat:51.5058,lng:-0.0206}], next:{m:'🚇',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#9364cc"></span><span class="stations">Canary Wharf → Liverpool Street</span></div><div class="dir">Elizabeth kier. Shenfield · 2 przystanki · ~6 min</div></div>'}},
+   {t:'Dennis Severs\u2019 House', icon:'🕯️', lat:51.5214,lng:-0.0767, dur:'~1,5h', anc:'🕙 10:00', note:'<b>Rezerwacja wymagana!</b> Podróż w czasie do XVIII-wiecznego Londynu. Cichy spacer przez 10 pokoi — jakby mieszkańcy właśnie wyszli. Świece, zapachy, szczegóły. „Jak wejść do obrazu Vermeera". Bilet ~£15.', see:['Zakaz mówienia — immersyjne doświadczenie w ciszy','Każdy pokój to inna epoka i historia rodziny Jervis','Detale: niedojedzone śniadanie, zmięta pościel, zapach kawy'], next:{m:'🚶',x:'~5 min spacer do Spitalfields / Liverpool St'}},
+   {t:'Postman\u2019s Park', icon:'🪦', lat:51.5167,lng:-0.0975, dur:'~30 min', anc:'🕚 ~11:45', note:'Maleńki park z murem upamiętniającym „zwykłych bohaterów". Ceramiczne tablice opisujące jak ludzie zginęli ratując innych. Wzruszające, mało turystyczne, gratis.', see:['Watts Memorial to Heroic Self-Sacrifice — 54 tablice','Historie: Mary Rogers (uratowała 5 osób z tonącego statku), Alice Ayres (uratowała 3 dzieci z pożaru)','Spokojne miejsce ukryte między wieżowcami'], next:{m:'🚶',x:'~8 min do Hunterian Museum (Lincoln\u2019s Inn Fields)'}},
+   {t:'Hunterian Museum', icon:'🦴', lat:51.5170,lng:-0.1175, dur:'~1h', anc:'🕛 ~12:30', note:'Kolekcja anatomiczna z XVIII wieku. Preparaty, szkielety, dziwactwa medyczne. <b>GRATIS</b>, Royal College of Surgeons. Nie dla każdego, ale fascynujące. Ponownie otwarty po remoncie!', see:['Szkielet „irlandzkiego giganta" (2.31m) — Charles Byrne','Preparaty Johna Huntera — pionier chirurgii','Curiosities: mózgi, zęby, kości z deformacjami'], next:{m:'🚶',x:'~10 min do Sir John Soane\u2019s Museum'}},
+   {t:'Sir John Soane\u2019s Museum', icon:'🏛️', lat:51.5170,lng:-0.1172, dur:'~1h', anc:'🕐 ~13:30', note:'Dom architekta pełen antyków i dziwactw. Ciasne pokoje, lustra, sekretne panele. <b>GRATIS</b>. Lincoln\u2019s Inn Fields — obok Hunterian.', see:['Picture Room — ściany otwierają się jak książka, 3 warstwy obrazów','Sarkofag Setiego I — egipski skarb w piwnicy','Model domu Soane\u2019a — miniatura z drewna lipowego'], next:{m:'🚶',x:'~5 min do Holborn, potem metro'}},
+   {t:'Lunch — Holborn', icon:'🍽️', lat:51.5174,lng:-0.1200, dur:'~45 min', anc:'🕑 ~14:30', note:'Szybki lunch przed ostatnimi atrakcjami.', food:[{n:'The Cittie of Yorke',desc:'⭐ 4.3 · Historyczny pub z XV wieku. Polecane: fish & chips, pie & mash, real ale',lat:51.5179,lng:-0.1165},{n:'Dishoom',desc:'⭐ 4.5 · Bombay café, kultowe. Polecane: bacon naan roll, black daal, chai',lat:51.5165,lng:-0.1205},{n:'Chancery Lane Pret',desc:'⭐ 4.0 · Szybko i sprawnie. Polecane: baguettes, wraps, flat white',lat:51.5175,lng:-0.1117}], next:{m:'🚇',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#ffd329;color:#000"></span><span class="stations">Holborn → Waterloo</span></div><div class="dir">Central → Waterloo & City lub Piccadilly · ~10 min</div></div>'}},
+   {t:'Leake Street Tunnel', icon:'🎨', lat:51.5025,lng:-0.1137, dur:'~20 min', anc:'🕞 ~15:30', note:'Legalny tunel graffiti pod Waterloo Station. Street art zmienia się codziennie. <b>Gratis</b>. Surowy, undergroundowy vibe.', see:['Banksy tu zaczynał — Cans Festival 2008','Artyści malują na żywo — możesz zobaczyć proces','Neonowe graffiti + urban decay aesthetic'], next:{m:'🚶🚇',x:'<div class="transit"><div class="leg">🚶 Waterloo stn ~3 min</div><div class="leg">🚇 <span class="ln" style="background:#b06110"></span><span class="stations">Waterloo → Baker Street</span></div><div class="dir">Bakerloo · 6 przystanków · ~12 min</div><div class="leg">🚶 ~5 min do Marylebone High St</div></div>'}},
+   {t:'Daunt Books', icon:'📚', lat:51.5225,lng:-0.1525, dur:'~30 min', anc:'🕓 ~16:15', note:'Najpiękniejsza księgarnia w Londynie. Edwardiańska architektura, drewniane galerie. Gratis wstęp — kup sobie książkę na lot!', see:['Główna galeria z balkonem i świetlikiem','Książki ułożone geograficznie — znajdź Polskę','Idealne miejsce na ostatnie zdjęcie z Londynu'], next:{m:'🚇',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#b06110"></span><span class="stations">Baker Street → Canary Wharf</span></div><div class="dir">Jubilee kier. Stratford · 11 przystanków · ~22 min</div></div>'}},
+   {t:'Powrót po bagaż', icon:'🧳', lat:51.5006,lng:-0.0203, anc:'🕔 ~17:00', note:'Odbierz bagaż z lobby. Masz jeszcze ~30 min zapasu.', next:{m:'🚇',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#9364cc"></span><span class="stations">Canary Wharf → Liverpool Street</span></div><div class="dir">Elizabeth kier. Shenfield · 2 przystanki · ~6 min</div></div>'}},
+   {t:'Liverpool Street → Stansted', icon:'🚆', lat:51.5178,lng:-0.0817, anc:'🕠 ~17:30 pociąg', note:'Stansted Express co 15 min. Podróż ~47 min. Będziesz na lotnisku ~18:20 — 3h przed lotem.', next:{m:'🚆',x:'<div class="transit"><div class="leg">🚆 <span class="ln" style="background:#f47b20"></span><span class="stations">Liverpool Street → Stansted Airport</span></div><div class="dir">Stansted Express · ~47 min</div></div>'}},
+   {t:'Stansted Airport', icon:'✈️', lat:51.8860,lng:0.2389, anc:'🛫 21:20 → Poznań', note:'Dużo czasu! Spokojnie: kontrola bezpieczeństwa, kolacja na lotnisku, może ostatnie zakupy w Duty Free. Lot ~2h.'},
    {t:'Lądowanie w Poznaniu', icon:'🏠', anc:'🛬 00:20+1', note:'Koniec wyprawy. Dobranoc!'},
  ]},
 ];
@@ -430,9 +419,12 @@ const POIS = [
  {n:'North Greenwich stn', lat:51.5030,lng:0.0033, day:'wt', ord:1},
  {n:'InterContinental London – The O2', lat:51.5019,lng:0.0044, day:'wt', ord:2},
  {n:'Apollo Victoria Theatre', lat:51.4959,lng:-0.1436, day:'sr', ord:1},
- {n:'Sky Garden', lat:51.5113,lng:-0.0836, day:'czw', ord:1},
- {n:'Greenwich', lat:51.4769,lng:-0.0005, day:'czw', ord:2},
- {n:'British Museum', lat:51.5194,lng:-0.1270, day:'czw', ord:3},
+ {n:'Dennis Severs\u2019 House', lat:51.5214,lng:-0.0767, day:'czw', ord:1},
+ {n:'Postman\u2019s Park', lat:51.5167,lng:-0.0975, day:'czw', ord:2},
+ {n:'Hunterian Museum', lat:51.5170,lng:-0.1175, day:'czw', ord:3},
+ {n:'Sir John Soane\u2019s Museum', lat:51.5170,lng:-0.1172, day:'czw', ord:4},
+ {n:'Leake Street Tunnel', lat:51.5025,lng:-0.1137, day:'czw', ord:5},
+ {n:'Daunt Books', lat:51.5225,lng:-0.1525, day:'czw', ord:6},
 ];
 
 const AUDIO = [
@@ -794,19 +786,23 @@ const MONDAY_CONFIG = {
 const THURSDAY_CONFIG = {
   icon: '✈️',
   title: 'Lot do Poznania',
-  targetHour: 19, targetMin: 20, // Cel: być na lotnisku o 19:20 (2h przed)
+  targetHour: 18, targetMin: 20, // Cel: być na lotnisku o 18:20 (3h przed)
   deadlineHour: 21, deadlineMin: 20, // Lot 21:20
   deadlineLabel: 'odlot',
   successMsg: 'Jesteś na lotnisku! Udanego lotu!',
   schedule: [
-    // TODO: uzupełnić po zaplanowaniu czwartku
-    {name: 'Pobudka', time: 9*60, dur: 60, flex: 30},
-    {name: 'Śniadanie', time: 10*60, dur: 45, flex: 15, tip: 'Skróć do 30 min'},
-    {name: 'Atrakcje', time: 11*60, dur: 180, flex: 60, tip: 'Skróć zwiedzanie'},
-    {name: 'Lunch', time: 14*60, dur: 60, flex: 30, tip: 'Szybki lunch w drodze'},
-    {name: 'Powrót po bagaż', time: 16*60, dur: 30, flex: 0},
-    {name: 'Liverpool Street', time: 17*60, dur: 15, flex: 0},
-    {name: 'Stansted Airport', time: 17*60+50, dur: 90, flex: 0, isTarget: true},
+    {name: 'Pobudka', time: 8*60+30, dur: 30, flex: 0},
+    {name: 'Śniadanie', time: 9*60, dur: 30, flex: 10, tip: 'Skróć do 20 min'},
+    {name: 'Dennis Severs\u2019 House', time: 10*60, dur: 90, flex: 20, tip: 'Skróć do 1h'},
+    {name: 'Postman\u2019s Park', time: 11*60+45, dur: 30, flex: 15, tip: 'Szybki spacer 15 min'},
+    {name: 'Hunterian Museum', time: 12*60+30, dur: 60, flex: 20, tip: 'Skróć do 40 min'},
+    {name: 'Soane\u2019s Museum', time: 13*60+30, dur: 60, flex: 20, tip: 'Skróć do 40 min'},
+    {name: 'Lunch', time: 14*60+30, dur: 45, flex: 15, tip: 'Szybki lunch 30 min'},
+    {name: 'Leake Street', time: 15*60+30, dur: 20, flex: 10, tip: 'Szybkie zdjęcia 10 min'},
+    {name: 'Daunt Books', time: 16*60+15, dur: 30, flex: 15, tip: 'Pomiń - biegnij po bagaż'},
+    {name: 'Powrót po bagaż', time: 17*60, dur: 20, flex: 0},
+    {name: 'Liverpool Street', time: 17*60+30, dur: 10, flex: 0},
+    {name: 'Stansted Airport', time: 18*60+20, dur: 0, flex: 0, isTarget: true},
   ],
   startHour: 9, endHour: 22,
   dayCheck: (d) => d.getFullYear() === 2026 && d.getMonth() === 5 && d.getDate() === 4,
@@ -824,13 +820,6 @@ const sbBuffer = document.getElementById('sb-buffer');
 const sbStatusText = document.getElementById('sb-status-text');
 const sbTip = document.getElementById('sb-tip');
 const sbTitle = document.querySelector('.sb-title');
-const demoControls = document.getElementById('demo-controls');
-const demoSlider = document.getElementById('demo-slider');
-const demoTimeDisplay = document.getElementById('demo-time');
-
-let demoMode = false;
-let demoDay = 'nd'; // 'nd', 'pon' lub 'czw'
-let demoTime = 15; // godzina w formacie dziesiętnym
 
 // Sprawdź który dzień jest aktywny (na podstawie wybranego pill lub daty)
 function getActiveConfig() {
@@ -849,17 +838,12 @@ function shouldShowTracker() {
   const config = getActiveConfig();
   if (!config) return false;
   
-  if (demoMode) return true;
-  
   const now = new Date();
   return config.dayCheck(now);
 }
 
-// Pobierz aktualny czas (lub demo czas)
+// Pobierz aktualny czas
 function getCurrentMinutes() {
-  if (demoMode) {
-    return Math.floor(demoTime * 60);
-  }
   const now = new Date();
   return now.getHours() * 60 + now.getMinutes();
 }
@@ -945,7 +929,6 @@ function updateTimeTracker() {
   
   if (!config || !shouldShowTracker()) {
     sunsetBanner.classList.remove('active');
-    demoControls.classList.remove('active');
     clearCardHighlights();
     return;
   }
@@ -963,7 +946,6 @@ function updateTimeTracker() {
   }
   
   sunsetBanner.classList.add('active');
-  if (demoMode) demoControls.classList.add('active');
   
   // Zaktualizuj tytuł bannera
   sbTitle.textContent = `${config.icon} ${config.title}`;
@@ -1094,42 +1076,6 @@ function highlightCards(currentIdx, nextIdx, currentMins, config) {
       }
     }
   });
-}
-
-// Demo slider
-demoSlider.addEventListener('input', (e) => {
-  demoTime = parseFloat(e.target.value);
-  const h = Math.floor(demoTime);
-  const m = Math.round((demoTime - h) * 60);
-  demoTimeDisplay.textContent = `${h}:${m.toString().padStart(2, '0')}`;
-  updateTimeTracker();
-});
-
-// Włącz demo mode (kliknij 3x w banner)
-let clickCount = 0;
-sunsetBanner.addEventListener('click', () => {
-  clickCount++;
-  if (clickCount >= 3) {
-    demoMode = !demoMode;
-    clickCount = 0;
-    if (demoMode) {
-      demoControls.classList.add('active');
-      sunsetBanner.classList.add('active');
-    } else {
-      demoControls.classList.remove('active');
-    }
-    updateTimeTracker();
-  }
-  setTimeout(() => clickCount = 0, 1000);
-});
-
-// Auto-enable demo jeśli nie jest właściwy dzień
-const realNow = new Date();
-const isSundayReal = SUNDAY_CONFIG.dayCheck(realNow);
-const isMondayReal = MONDAY_CONFIG.dayCheck(realNow);
-const isThursdayReal = THURSDAY_CONFIG.dayCheck(realNow);
-if (!isSundayReal && !isMondayReal && !isThursdayReal) {
-  demoMode = true;
 }
 
 // Nasłuchuj zmiany dnia (pill click)
