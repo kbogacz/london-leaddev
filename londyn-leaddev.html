@@ -198,7 +198,18 @@
   .sunset-banner .sb-fill.danger{background:linear-gradient(90deg, #f87171, #dc2626);}
   .sunset-banner .sb-status{font-size:12px; color:rgba(255,255,255,0.8); display:flex; justify-content:space-between;}
   .sunset-banner .sb-tip{font-size:11px; color:#fbbf24; margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.1);}
+  .sunset-banner .sb-current{display:flex; flex-direction:column; gap:2px; margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.15); font-size:12px;}
+  .sunset-banner .sb-now{color:#4ade80; font-weight:600;}
+  .sunset-banner .sb-next{color:rgba(255,255,255,0.7);}
   .sunset-banner .sb-demo{font-size:10px; background:rgba(255,255,255,0.15); padding:2px 6px; border-radius:4px; margin-left:8px;}
+  
+  /* Timeline card states */
+  .blk.is-past .card{opacity:0.5; background:#f0ebe0;}
+  .blk.is-past .dot{background:#cdc4ab !important; border-color:#cdc4ab !important;}
+  .blk.is-current .card{border:2px solid #4ade80; box-shadow:0 0 0 3px rgba(74,222,128,0.2), var(--shadow);}
+  .blk.is-current .dot{background:#4ade80 !important; border-color:#4ade80 !important; box-shadow:0 0 8px rgba(74,222,128,0.5);}
+  .blk.is-next .card{border:2px solid #60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,0.15), var(--shadow);}
+  .blk.is-next .dot{border-color:#60a5fa !important;}
   
   /* Demo controls */
   .demo-controls{display:none; margin:8px 16px; padding:10px; background:#fff3cd; border:1px solid #ffc107; border-radius:10px; font-size:12px;}
@@ -241,6 +252,10 @@
       <div class="sb-status">
         <span id="sb-buffer">Bufor: --</span>
         <span id="sb-status-text">Ładowanie...</span>
+      </div>
+      <div class="sb-current" id="sb-current">
+        <span class="sb-now">📍 --</span>
+        <span class="sb-next">➡️ --</span>
       </div>
       <div class="sb-tip" id="sb-tip" style="display:none"></div>
     </div>
@@ -786,10 +801,11 @@ function formatDiff(mins) {
   return `za ${h}h ${m}min`;
 }
 
-// Oblicz bufor czasowy
+// Oblicz bufor czasowy i znajdź aktualny punkt
 function calculateBuffer(currentMins) {
   const sunsetMins = SUNSET_HOUR * 60 + SUNSET_MIN;
   const targetMins = TARGET_HOUR * 60 + TARGET_MIN;
+  const TOLERANCE = 10; // 10 min tolerancji
   
   // Czas do zachodu
   const timeToSunset = sunsetMins - currentMins;
@@ -797,37 +813,69 @@ function calculateBuffer(currentMins) {
   // Znajdź gdzie jesteśmy w harmonogramie
   let remainingTime = 0;
   let currentPoint = null;
+  let currentIdx = -1;
+  let nextPoint = null;
+  let nextIdx = -1;
   let nextTip = null;
   
   for (let i = 0; i < SUNDAY_SCHEDULE.length; i++) {
     const point = SUNDAY_SCHEDULE[i];
-    if (point.isSunset) break;
+    const pointEnd = point.time + (point.dur || 0) + TOLERANCE;
     
-    if (currentMins < point.time) {
-      // Jeszcze nie dotarliśmy do tego punktu
-      remainingTime += (point.time - (i === 0 ? currentMins : SUNDAY_SCHEDULE[i-1].time + (SUNDAY_SCHEDULE[i-1].dur || 0)));
-      if (point.dur) remainingTime += point.dur;
-      if (point.tip && !nextTip) nextTip = point.tip;
-    } else if (point.dur && currentMins < point.time + point.dur) {
-      // Jesteśmy w trakcie tego punktu
+    if (currentMins >= point.time && currentMins < pointEnd) {
+      // Jesteśmy w trakcie tego punktu (z tolerancją)
       currentPoint = point;
-      remainingTime += (point.time + point.dur - currentMins);
-      if (point.tip && !nextTip) nextTip = point.tip;
+      currentIdx = i;
+      if (point.dur) remainingTime += Math.max(0, point.time + point.dur - currentMins);
+      // Następny punkt
+      if (i + 1 < SUNDAY_SCHEDULE.length) {
+        nextPoint = SUNDAY_SCHEDULE[i + 1];
+        nextIdx = i + 1;
+      }
+    } else if (currentMins < point.time && !nextPoint) {
+      // Jeszcze nie dotarliśmy - to jest następny punkt
+      nextPoint = point;
+      nextIdx = i;
+      remainingTime += point.time - currentMins;
+      if (point.dur) remainingTime += point.dur;
+    } else if (currentMins < point.time) {
+      // Dalsze punkty
+      if (point.dur) remainingTime += point.dur;
     }
+    
+    // Zbierz tip z najbliższego elastycznego punktu
+    if (point.tip && !nextTip && currentMins < point.time + (point.dur || 0)) {
+      nextTip = point.tip;
+    }
+  }
+  
+  // Jeśli jesteśmy przed pierwszym punktem
+  if (!currentPoint && currentMins < SUNDAY_SCHEDULE[0].time) {
+    nextPoint = SUNDAY_SCHEDULE[0];
+    nextIdx = 0;
+  }
+  
+  // Jeśli jesteśmy między punktami (w transporcie)
+  if (!currentPoint && nextPoint) {
+    // Jesteśmy w drodze do nextPoint
+    currentPoint = { name: 'W drodze', isTransit: true };
   }
   
   // Bufor = czas do celu - pozostały czas zwiedzania
   const timeToTarget = targetMins - currentMins;
   const buffer = timeToTarget - remainingTime;
   
-  return { timeToSunset, timeToTarget, buffer, remainingTime, currentPoint, nextTip };
+  return { timeToSunset, timeToTarget, buffer, remainingTime, currentPoint, currentIdx, nextPoint, nextIdx, nextTip };
 }
 
-// Aktualizuj banner
+// Aktualizuj banner i podświetlanie kart
 function updateSunsetBanner() {
+  const sbCurrent = document.getElementById('sb-current');
+  
   if (!isSunday()) {
     sunsetBanner.classList.remove('active');
     demoControls.classList.remove('active');
+    clearCardHighlights();
     return;
   }
   
@@ -837,6 +885,7 @@ function updateSunsetBanner() {
   // Pokaż tylko między 15:00 a 22:00
   if (currentMins < 15*60 || currentMins > 22*60) {
     sunsetBanner.classList.remove('active');
+    clearCardHighlights();
     return;
   }
   
@@ -891,6 +940,29 @@ function updateSunsetBanner() {
     sbBuffer.textContent = `Opóźnienie: ${Math.abs(calc.buffer)} min`;
   }
   
+  // Aktualny punkt
+  if (calc.currentPoint) {
+    if (calc.currentPoint.isTransit) {
+      sbCurrent.querySelector('.sb-now').textContent = `🚶 W drodze do: ${calc.nextPoint ? calc.nextPoint.name : '...'}`;
+    } else {
+      sbCurrent.querySelector('.sb-now').textContent = `📍 Teraz: ${calc.currentPoint.name}`;
+    }
+  } else {
+    sbCurrent.querySelector('.sb-now').textContent = `📍 Start: ${SUNDAY_SCHEDULE[0].name}`;
+  }
+  
+  // Następny punkt
+  if (calc.nextPoint && !calc.currentPoint?.isTransit) {
+    const nextTime = formatTime(calc.nextPoint.time);
+    sbCurrent.querySelector('.sb-next').textContent = `➡️ Następny: ${calc.nextPoint.name} (~${nextTime})`;
+    sbCurrent.querySelector('.sb-next').style.display = 'block';
+  } else if (calc.currentPoint?.isSunset) {
+    sbCurrent.querySelector('.sb-next').textContent = `🌅 Ciesz się zachodem!`;
+    sbCurrent.querySelector('.sb-next').style.display = 'block';
+  } else {
+    sbCurrent.querySelector('.sb-next').style.display = calc.currentPoint?.isTransit ? 'none' : 'block';
+  }
+  
   // Tip
   if (calc.buffer < 30 && calc.nextTip) {
     sbTip.textContent = '💡 ' + calc.nextTip;
@@ -898,6 +970,59 @@ function updateSunsetBanner() {
   } else {
     sbTip.style.display = 'none';
   }
+  
+  // Podświetl karty w timeline
+  highlightCards(calc.currentIdx, calc.nextIdx, currentMins);
+}
+
+// Wyczyść podświetlenia kart
+function clearCardHighlights() {
+  document.querySelectorAll('.blk').forEach(blk => {
+    blk.classList.remove('is-past', 'is-current', 'is-next');
+  });
+}
+
+// Podświetl karty
+function highlightCards(currentIdx, nextIdx, currentMins) {
+  // Tylko dla niedzieli (id='nd')
+  const dayView = document.querySelector('#v-plan .tl');
+  if (!dayView) return;
+  
+  // Sprawdź czy aktywna jest niedziela
+  const activePill = document.querySelector('.pill.on');
+  if (!activePill || !activePill.textContent.includes('Niedziela')) {
+    clearCardHighlights();
+    return;
+  }
+  
+  const blocks = dayView.querySelectorAll('.blk');
+  
+  blocks.forEach((blk, idx) => {
+    blk.classList.remove('is-past', 'is-current', 'is-next');
+    
+    // Mapowanie idx karty do SUNDAY_SCHEDULE
+    // Karty: 0=Stansted, 1=Liverpool, 2=Shoreditch, 3=Tower Hill, 4=Tower&Bridge, 5=Westminster, 6=South Bank, 7=St James, 8=Kolacja, 9=Liverpool bagaż, 10=Hotel
+    // Schedule: 0=Stansted, 1=Liverpool, 2=Shoreditch, 3=Tower Hill, 4=Tower&Bridge, 5=Westminster, 6=South Bank, 7=St James
+    
+    if (idx < SUNDAY_SCHEDULE.length) {
+      const point = SUNDAY_SCHEDULE[idx];
+      const pointEnd = point.time + (point.dur || 0);
+      
+      if (currentMins > pointEnd + 10) {
+        blk.classList.add('is-past');
+      } else if (idx === currentIdx) {
+        blk.classList.add('is-current');
+      } else if (idx === nextIdx) {
+        blk.classList.add('is-next');
+      }
+    } else if (idx > 7) {
+      // Punkty po St James's (kolacja, bagaż, hotel) - nie trackujemy
+      // Ale jeśli minęliśmy St James's, to te też są "past"
+      if (currentMins > TARGET_HOUR * 60 + TARGET_MIN + 70) {
+        blk.classList.add('is-past');
+      }
+    }
+  });
 }
 
 // Demo slider
