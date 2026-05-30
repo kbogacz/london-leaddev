@@ -741,7 +741,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-/* ---------- TIME TRACKER (niedziela: zachód, czwartek: lot) ---------- */
+/* ---------- TIME TRACKER (niedziela: zachód, poniedziałek: Herkules, czwartek: lot) ---------- */
 
 // ===== KONFIGURACJA NIEDZIELI (zachód słońca) =====
 const SUNDAY_CONFIG = {
@@ -764,6 +764,30 @@ const SUNDAY_CONFIG = {
   startHour: 15, endHour: 22,
   dayCheck: (d) => d.getFullYear() === 2026 && d.getMonth() === 4 && d.getDate() === 31,
   dayLabel: 'Niedziela'
+};
+
+// ===== KONFIGURACJA PONIEDZIAŁKU (Herkules) =====
+const MONDAY_CONFIG = {
+  icon: '🎭',
+  title: 'Herkules',
+  targetHour: 19, targetMin: 0, // Cel: być przy teatrze o 19:00
+  deadlineHour: 19, deadlineMin: 30, // Spektakl 19:30
+  deadlineLabel: 'kurtyna',
+  successMsg: 'Enjoy the show!',
+  schedule: [
+    {name: 'Dojazd South Ken', time: 9*60, dur: 35, flex: 0},
+    {name: 'Śniadanie', time: 9*60+45, dur: 45, flex: 15, tip: 'Skróć do 30 min'},
+    {name: 'V&A', time: 10*60+30, dur: 120, flex: 30, tip: 'Skróć do 1.5h'},
+    {name: 'Dojazd Bankside', time: 12*60+45, dur: 25, flex: 0},
+    {name: 'Lunch Borough', time: 13*60+15, dur: 60, flex: 20, tip: 'Szybki lunch 40 min'},
+    {name: 'Tate Modern', time: 14*60+30, dur: 120, flex: 45, tip: 'Skróć do 1h'},
+    {name: 'Spacer do Covent', time: 16*60+45, dur: 30, flex: 10},
+    {name: 'Covent Garden', time: 17*60+15, dur: 90, flex: 30, tip: 'Pomiń zakupy, idź prosto do teatru'},
+    {name: 'Theatre Royal', time: 19*60, dur: 0, flex: 0, isTarget: true},
+  ],
+  startHour: 9, endHour: 20,
+  dayCheck: (d) => d.getFullYear() === 2026 && d.getMonth() === 5 && d.getDate() === 1,
+  dayLabel: 'Poniedziałek'
 };
 
 // ===== KONFIGURACJA CZWARTKU (lot) =====
@@ -789,7 +813,7 @@ const THURSDAY_CONFIG = {
   dayLabel: 'Czwartek'
 };
 
-// Aktualny config (null jeśli nie niedziela/czwartek)
+// Aktualny config (null jeśli nie niedziela/poniedziałek/czwartek)
 let activeConfig = null;
 let activeSchedule = [];
 
@@ -805,7 +829,7 @@ const demoSlider = document.getElementById('demo-slider');
 const demoTimeDisplay = document.getElementById('demo-time');
 
 let demoMode = false;
-let demoDay = 'nd'; // 'nd' lub 'czw'
+let demoDay = 'nd'; // 'nd', 'pon' lub 'czw'
 let demoTime = 15; // godzina w formacie dziesiętnym
 
 // Sprawdź który dzień jest aktywny (na podstawie wybranego pill lub daty)
@@ -814,6 +838,7 @@ function getActiveConfig() {
   if (activePill) {
     const text = activePill.textContent;
     if (text.includes('Niedziela')) return SUNDAY_CONFIG;
+    if (text.includes('Poniedziałek')) return MONDAY_CONFIG;
     if (text.includes('Czwartek')) return THURSDAY_CONFIG;
   }
   return null;
@@ -1101,8 +1126,9 @@ sunsetBanner.addEventListener('click', () => {
 // Auto-enable demo jeśli nie jest właściwy dzień
 const realNow = new Date();
 const isSundayReal = SUNDAY_CONFIG.dayCheck(realNow);
+const isMondayReal = MONDAY_CONFIG.dayCheck(realNow);
 const isThursdayReal = THURSDAY_CONFIG.dayCheck(realNow);
-if (!isSundayReal && !isThursdayReal) {
+if (!isSundayReal && !isMondayReal && !isThursdayReal) {
   demoMode = true;
 }
 
