@@ -179,6 +179,32 @@
   nav button .i{font-size:24px; line-height:1;}
   nav button.on{color:var(--red);}
   nav button:active{transform:scale(0.94); background:rgba(215,38,61,0.08); border-radius:12px;}
+
+  /* Sunset tracker banner */
+  .sunset-banner{
+    display:none; margin:0 16px 8px; padding:12px 14px; border-radius:14px;
+    background:linear-gradient(135deg, #1c2230 0%, #2d3548 100%);
+    color:#fff; box-shadow:0 4px 15px rgba(28,34,48,0.3);
+  }
+  .sunset-banner.active{display:block;}
+  .sunset-banner .sb-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+  .sunset-banner .sb-title{font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px;}
+  .sunset-banner .sb-countdown{font-family:var(--disp); font-size:22px; font-weight:700; color:#f6c85f;}
+  .sunset-banner .sb-bar{height:6px; background:rgba(255,255,255,0.15); border-radius:3px; overflow:hidden; margin-bottom:6px;}
+  .sunset-banner .sb-fill{height:100%; border-radius:3px; transition:width 0.5s ease;}
+  .sunset-banner .sb-fill.ok{background:linear-gradient(90deg, #4ade80, #22c55e);}
+  .sunset-banner .sb-fill.warn{background:linear-gradient(90deg, #fbbf24, #f59e0b);}
+  .sunset-banner .sb-fill.rush{background:linear-gradient(90deg, #fb923c, #ea580c);}
+  .sunset-banner .sb-fill.danger{background:linear-gradient(90deg, #f87171, #dc2626);}
+  .sunset-banner .sb-status{font-size:12px; color:rgba(255,255,255,0.8); display:flex; justify-content:space-between;}
+  .sunset-banner .sb-tip{font-size:11px; color:#fbbf24; margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.1);}
+  .sunset-banner .sb-demo{font-size:10px; background:rgba(255,255,255,0.15); padding:2px 6px; border-radius:4px; margin-left:8px;}
+  
+  /* Demo controls */
+  .demo-controls{display:none; margin:8px 16px; padding:10px; background:#fff3cd; border:1px solid #ffc107; border-radius:10px; font-size:12px;}
+  .demo-controls.active{display:block;}
+  .demo-controls input[type="range"]{width:100%; margin:6px 0;}
+  .demo-controls .demo-time{font-weight:700; font-size:14px; color:#856404;}
 </style>
 </head>
 <body>
@@ -204,6 +230,28 @@
   <!-- PLAN -->
   <div id="planwrap">
     <div class="pills" id="pills"></div>
+    
+    <!-- Sunset tracker banner (tylko niedziela) -->
+    <div class="sunset-banner" id="sunset-banner">
+      <div class="sb-top">
+        <span class="sb-title">🌅 Zachód słońca</span>
+        <span class="sb-countdown" id="sb-countdown">--:--</span>
+      </div>
+      <div class="sb-bar"><div class="sb-fill ok" id="sb-fill" style="width:100%"></div></div>
+      <div class="sb-status">
+        <span id="sb-buffer">Bufor: --</span>
+        <span id="sb-status-text">Ładowanie...</span>
+      </div>
+      <div class="sb-tip" id="sb-tip" style="display:none"></div>
+    </div>
+    
+    <!-- Demo controls (do testowania) -->
+    <div class="demo-controls" id="demo-controls">
+      <b>Demo mode:</b> Symuluj czas niedzieli (31.05)<br>
+      <input type="range" id="demo-slider" min="15" max="23.5" step="0.0833" value="15">
+      <div>Symulowany czas: <span class="demo-time" id="demo-time">15:00</span></div>
+    </div>
+    
     <section class="view on" id="v-plan"><div class="tl" id="tl"></div></section>
   </div>
 
@@ -674,6 +722,220 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
+
+/* ---------- SUNSET TRACKER ---------- */
+const SUNSET_HOUR = 21;
+const SUNSET_MIN = 9; // 21:09
+const TARGET_HOUR = 20;
+const TARGET_MIN = 30; // Cel: być w St James's o 20:30 (złota godzina)
+
+// Punkty niedzieli z czasami (w minutach od północy) i elastycznością
+const SUNDAY_SCHEDULE = [
+  {name: 'Stansted', time: 15*60, flex: 0},
+  {name: 'Liverpool St', time: 16*60+20, flex: 0},
+  {name: 'Shoreditch', time: 16*60+40, dur: 45, flex: 25, tip: 'Skróć do 20 min (tylko Beigel Bake)'},
+  {name: 'Tower Hill', time: 17*60+45, flex: 0},
+  {name: 'Tower & Bridge', time: 18*60, dur: 25, flex: 15, tip: 'Skróć do 10 min (tylko zdjęcie mostu)'},
+  {name: 'Westminster', time: 18*60+55, dur: 20, flex: 10},
+  {name: 'South Bank', time: 19*60+20, dur: 20, flex: 20, tip: 'Pomiń - widoki masz z roweru'},
+  {name: 'St James\'s Park', time: TARGET_HOUR*60+TARGET_MIN, dur: 70, flex: 0, isSunset: true},
+];
+
+const sunsetBanner = document.getElementById('sunset-banner');
+const sbCountdown = document.getElementById('sb-countdown');
+const sbFill = document.getElementById('sb-fill');
+const sbBuffer = document.getElementById('sb-buffer');
+const sbStatusText = document.getElementById('sb-status-text');
+const sbTip = document.getElementById('sb-tip');
+const demoControls = document.getElementById('demo-controls');
+const demoSlider = document.getElementById('demo-slider');
+const demoTimeDisplay = document.getElementById('demo-time');
+
+let demoMode = false;
+let demoTime = 15; // 15:00
+
+// Sprawdź czy to niedziela 31.05.2026 lub demo mode
+function isSunday() {
+  const now = new Date();
+  return (now.getFullYear() === 2026 && now.getMonth() === 4 && now.getDate() === 31) || demoMode;
+}
+
+// Pobierz aktualny czas (lub demo czas)
+function getCurrentMinutes() {
+  if (demoMode) {
+    return Math.floor(demoTime * 60);
+  }
+  const now = new Date();
+  return now.getHours() * 60 + now.getMinutes();
+}
+
+// Formatuj minuty do HH:MM
+function formatTime(mins) {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${h}:${m.toString().padStart(2, '0')}`;
+}
+
+// Formatuj różnicę czasu
+function formatDiff(mins) {
+  if (mins < 0) return `${Math.abs(mins)} min temu`;
+  if (mins < 60) return `za ${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (m === 0) return `za ${h}h`;
+  return `za ${h}h ${m}min`;
+}
+
+// Oblicz bufor czasowy
+function calculateBuffer(currentMins) {
+  const sunsetMins = SUNSET_HOUR * 60 + SUNSET_MIN;
+  const targetMins = TARGET_HOUR * 60 + TARGET_MIN;
+  
+  // Czas do zachodu
+  const timeToSunset = sunsetMins - currentMins;
+  
+  // Znajdź gdzie jesteśmy w harmonogramie
+  let remainingTime = 0;
+  let currentPoint = null;
+  let nextTip = null;
+  
+  for (let i = 0; i < SUNDAY_SCHEDULE.length; i++) {
+    const point = SUNDAY_SCHEDULE[i];
+    if (point.isSunset) break;
+    
+    if (currentMins < point.time) {
+      // Jeszcze nie dotarliśmy do tego punktu
+      remainingTime += (point.time - (i === 0 ? currentMins : SUNDAY_SCHEDULE[i-1].time + (SUNDAY_SCHEDULE[i-1].dur || 0)));
+      if (point.dur) remainingTime += point.dur;
+      if (point.tip && !nextTip) nextTip = point.tip;
+    } else if (point.dur && currentMins < point.time + point.dur) {
+      // Jesteśmy w trakcie tego punktu
+      currentPoint = point;
+      remainingTime += (point.time + point.dur - currentMins);
+      if (point.tip && !nextTip) nextTip = point.tip;
+    }
+  }
+  
+  // Bufor = czas do celu - pozostały czas zwiedzania
+  const timeToTarget = targetMins - currentMins;
+  const buffer = timeToTarget - remainingTime;
+  
+  return { timeToSunset, timeToTarget, buffer, remainingTime, currentPoint, nextTip };
+}
+
+// Aktualizuj banner
+function updateSunsetBanner() {
+  if (!isSunday()) {
+    sunsetBanner.classList.remove('active');
+    demoControls.classList.remove('active');
+    return;
+  }
+  
+  const currentMins = getCurrentMinutes();
+  const sunsetMins = SUNSET_HOUR * 60 + SUNSET_MIN;
+  
+  // Pokaż tylko między 15:00 a 22:00
+  if (currentMins < 15*60 || currentMins > 22*60) {
+    sunsetBanner.classList.remove('active');
+    return;
+  }
+  
+  sunsetBanner.classList.add('active');
+  if (demoMode) demoControls.classList.add('active');
+  
+  const calc = calculateBuffer(currentMins);
+  
+  // Countdown
+  if (calc.timeToSunset > 0) {
+    sbCountdown.textContent = formatDiff(calc.timeToSunset);
+  } else {
+    sbCountdown.textContent = 'Po zachodzie';
+  }
+  
+  // Progress bar (100% = 6h przed zachodem, 0% = zachód)
+  const maxTime = 6 * 60; // 6h
+  const progress = Math.max(0, Math.min(100, (calc.timeToSunset / maxTime) * 100));
+  sbFill.style.width = progress + '%';
+  
+  // Status i kolory
+  let statusClass = 'ok';
+  let statusText = 'Na luzie';
+  
+  if (calc.timeToTarget <= 0) {
+    statusClass = 'ok';
+    statusText = 'Dotarłeś! Złota godzina';
+  } else if (calc.buffer >= 45) {
+    statusClass = 'ok';
+    statusText = 'Na luzie';
+  } else if (calc.buffer >= 30) {
+    statusClass = 'warn';
+    statusText = 'OK, trzymaj tempo';
+  } else if (calc.buffer >= 15) {
+    statusClass = 'rush';
+    statusText = 'Przyspiesz!';
+  } else if (calc.buffer >= 0) {
+    statusClass = 'danger';
+    statusText = 'Zagrożony!';
+  } else {
+    statusClass = 'danger';
+    statusText = 'Spóźnienie ' + Math.abs(calc.buffer) + ' min';
+  }
+  
+  sbFill.className = 'sb-fill ' + statusClass;
+  sbStatusText.textContent = statusText;
+  
+  // Bufor
+  if (calc.buffer >= 0) {
+    sbBuffer.textContent = `Bufor: ~${calc.buffer} min`;
+  } else {
+    sbBuffer.textContent = `Opóźnienie: ${Math.abs(calc.buffer)} min`;
+  }
+  
+  // Tip
+  if (calc.buffer < 30 && calc.nextTip) {
+    sbTip.textContent = '💡 ' + calc.nextTip;
+    sbTip.style.display = 'block';
+  } else {
+    sbTip.style.display = 'none';
+  }
+}
+
+// Demo slider
+demoSlider.addEventListener('input', (e) => {
+  demoTime = parseFloat(e.target.value);
+  const h = Math.floor(demoTime);
+  const m = Math.round((demoTime - h) * 60);
+  demoTimeDisplay.textContent = `${h}:${m.toString().padStart(2, '0')}`;
+  updateSunsetBanner();
+});
+
+// Włącz demo mode (kliknij 3x w banner)
+let clickCount = 0;
+sunsetBanner.addEventListener('click', () => {
+  clickCount++;
+  if (clickCount >= 3) {
+    demoMode = !demoMode;
+    clickCount = 0;
+    if (demoMode) {
+      demoControls.classList.add('active');
+      sunsetBanner.classList.add('active');
+    } else {
+      demoControls.classList.remove('active');
+    }
+    updateSunsetBanner();
+  }
+  setTimeout(() => clickCount = 0, 1000);
+});
+
+// Auto-enable demo jeśli nie jest niedziela 31.05
+const realNow = new Date();
+if (!(realNow.getFullYear() === 2026 && realNow.getMonth() === 4 && realNow.getDate() === 31)) {
+  demoMode = true;
+}
+
+// Aktualizuj co 30 sekund
+updateSunsetBanner();
+setInterval(updateSunsetBanner, 30000);
 </script>
 </body>
 </html>
