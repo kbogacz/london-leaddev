@@ -113,6 +113,8 @@
   .see-list li{margin-bottom:3px;}
   .see-link{color:var(--ink); font-weight:600; text-decoration:underline; text-decoration-color:var(--thames); text-decoration-thickness:1.5px; text-underline-offset:2px;}
   .see-link:active{opacity:.7;}
+  .see-pin{text-decoration:none; font-size:14px; margin-left:1px;}
+  .see-pin:active{opacity:.5;}
   .food-sec{margin-top:12px; border-top:1px solid var(--line); padding-top:10px;}
   .food-label{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink2); margin-bottom:7px;}
   .food-item{display:flex; flex-direction:column; padding:8px 11px; background:#fffaf4; border:1px solid var(--line); border-radius:12px; margin-bottom:6px; text-decoration:none; color:var(--ink);}
@@ -360,7 +362,8 @@ const DAYS = [
    {t:'Wyjście z hotelu', icon:'🌅', lat:51.5006,lng:-0.0203, anc:'🚪 07:50', note:'Spokojny start — 30 min zapasu zanim konferencja otwarta. Wychodzisz przez South Quay Plaza na estate.', next:{m:'🚶',x:'~8–10 min pieszo do stacji Canary Wharf (Jubilee) przez estate'}},
    {t:'Kawa + śniadanie — Canary Wharf', icon:'☕', lat:51.5050,lng:-0.0198, dur:'~20 min', note:'Wszystkie miejsca na trasie do stacji Jubilee — zero nadkładania drogi. Wybierz według humoru.', food:[{n:'WatchHouse Cabot Place',desc:'⭐ 4.7 · Specialty coffee + bakes. Polecane: La Negrita pour-over, matcha latte (oat), financier z matcha',lat:51.5046,lng:-0.0196},{n:'Caravan Canary Wharf',desc:'⭐ 4.5 · Pełne śniadanie, własna palarnia. Polecane: poached eggs on sourdough, corn hash z chorizem, flat white',lat:51.5058,lng:-0.0206},{n:'Grind @ Market Halls',desc:'⭐ 4.3 · Casual, otwiera 7:30. Polecane: bacon & egg roll, flat white, croissant maślany',lat:51.5053,lng:-0.0193},{n:'Blank Street Coffee',desc:'⭐ 4.4 · Trendy specialty, szybki serwis. Polecane: oat flat white, croffle, iced matcha',lat:51.5059,lng:-0.0209},{n:'Café Brera',desc:'⭐ 4.3 · Włoski klimat, przy doku. Polecane: cappuccino, cornetto con crema, kanapka z prosciutto',lat:51.5042,lng:-0.0201}], next:{m:'🚇',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#868f98"></span><span class="stations">Canary Wharf → North Greenwich</span></div><div class="dir">Jubilee kier. Stratford · 1 przystanek · ~3 min</div></div>'}},
    {t:'North Greenwich — pierwsze rozeznanie', icon:'🗺️', lat:51.5030,lng:0.0033, dur:'~7 min spacer', note:'Wychodzisz na Peninsula Square — skręć w prawo (lub idź za znakami InterContinental). Pierwsze wyjście tu — margines na orientację.', next:{m:'🚶',x:'InterContinental O2 — ok. 420 m, ~6–7 min pieszo'}},
-   {t:'LeadDev — Dzień 1', icon:'🎙️', cls:'fix', lat:51.5019,lng:0.0044, anc:'🎯 08:50 · 🎤 09:20 start', note:'InterContinental London – The O2. Rejestracja, orientacja, kawa przed otwarciem. Pół godziny zapasu.'},
+   {t:'LeadDev — Dzień 1', icon:'🎙️', cls:'fix', lat:51.5019,lng:0.0044, anc:'🎯 08:50 · 🎤 09:20 start', note:'InterContinental London – The O2. Rejestracja, orientacja, kawa przed otwarciem. Pół godziny zapasu.', next:{m:'🚶',x:'🚶 ~5 min do Boom Battle Bar (Entertainment Avenue)'}},
+   {t:'After party — Boom Battle Bar', icon:'🎳', lat:51.5028,lng:0.0048, anc:'🍻 18:00', note:'Boom Battle Bar w kompleksie O2. Rzutki, kręgle, topory, piwo. 23 Entertainment Avenue.', next:{m:'🚶🚇',x:'<div class="transit"><div class="leg">🚶 ~7 min do North Greenwich stn</div><div class="leg">🚇 <span class="ln" style="background:#868f98"></span><span class="stations">North Greenwich → Canary Wharf</span></div><div class="dir">Jubilee kier. Stanmore · 1 przystanek · ~3 min</div><div class="leg">🚶 ~8 min do hotelu</div><div class="total">⏱ Razem ~20 min do hotelu</div></div>'}},
  ]},
  { id:'sr', label:'Środa', date:'03.06', sub:'Konferencja + Wicked 🎭', planned:true, blocks:[
    {t:'Wyjście z hotelu', icon:'🌅', lat:51.5006,lng:-0.0203, anc:'🚪 08:05', note:'Znasz już trasę — wychodzisz 15 min później niż we wtorek, wciąż spokojnie i z zapasem.', next:{m:'🚶',x:'~8–10 min do Canary Wharf przez estate'}},
@@ -381,8 +384,8 @@ const DAYS = [
    {t:'Hunterian Museum', icon:'🦴', lat:51.5170,lng:-0.1175, dur:'~1h', anc:'🕛 ~12:30', note:'Kolekcja anatomiczna z XVIII wieku. Preparaty, szkielety, dziwactwa medyczne. <b>GRATIS</b>, Royal College of Surgeons. Nie dla każdego, ale fascynujące. Ponownie otwarty po remoncie!', see:['Hunterian Museum — szkielet irlandzkiego giganta (2.31m)','Hunterian Collection — preparaty Johna Huntera','Medical curiosities — chirurgia XVIII wieku'], next:{m:'🚶',x:'🚶 ~2 min pieszo do Sir John Soane\u2019s Museum (ten sam plac)'}},
    {t:'Sir John Soane\u2019s Museum', icon:'🏛️', lat:51.5170,lng:-0.1172, dur:'~1h', anc:'🕐 ~13:30', note:'Dom architekta pełen antyków i dziwactw. Ciasne pokoje, lustra, sekretne panele. <b>GRATIS</b>. Lincoln\u2019s Inn Fields — obok Hunterian.', see:['Sir John Soane\u2019s Museum — Picture Room z 3 warstwami obrazów','Sarkofag Setiego I — egipski skarb w piwnicy','Georgian architecture — sekretne panele i lustra'], next:{m:'🚶',x:'🚶 ~5 min pieszo do Holborn'}},
    {t:'Lunch — Holborn', icon:'🍽️', lat:51.5174,lng:-0.1200, dur:'~45 min', anc:'🕑 ~14:30', note:'Szybki lunch przed ostatnimi atrakcjami.', food:[{n:'The Cittie of Yorke',desc:'⭐ 4.3 · Historyczny pub z XV wieku. Polecane: fish & chips, pie & mash, real ale',lat:51.5179,lng:-0.1165},{n:'Dishoom',desc:'⭐ 4.5 · Bombay café, kultowe. Polecane: bacon naan roll, black daal, chai',lat:51.5165,lng:-0.1205},{n:'Chancery Lane Pret',desc:'⭐ 4.0 · Szybko i sprawnie. Polecane: baguettes, wraps, flat white',lat:51.5175,lng:-0.1117}], next:{m:'🚇',x:'<div class="transit"><div class="leg">🚇 <span class="ln" style="background:#dc241f"></span><span class="stations">Holborn → Tottenham Court Road</span></div><div class="dir">Central kier. West Ruislip · 1 przystanek · ~2 min</div><div class="leg">🚇 <span class="ln" style="background:#000"></span><span class="stations">→ Waterloo</span></div><div class="dir">Northern kier. Morden · 3 przystanki · ~6 min</div></div>'}},
-   {t:'Leake Street Tunnel', icon:'🎨', lat:51.5025,lng:-0.1137, dur:'~20 min', anc:'🕞 ~15:30', note:'Legalny tunel graffiti pod Waterloo Station. Street art zmienia się codziennie. <b>Gratis</b>. Surowy, undergroundowy vibe.', see:['Leake Street Tunnel — legalny tunel graffiti','Banksy Cans Festival — tu zaczynał','London street art — artyści malują na żywo'], next:{m:'🚶🚇',x:'<div class="transit"><div class="leg">🚶 ~3 min do Waterloo stn</div><div class="leg">🚇 <span class="ln" style="background:#b06110"></span><span class="stations">Waterloo → Baker Street</span></div><div class="dir">Bakerloo · 6 przystanków · ~12 min</div><div class="leg">🚶 ~5 min do Marylebone High St</div></div>'}},
-   {t:'Daunt Books', icon:'📚', lat:51.5225,lng:-0.1525, dur:'~30 min', anc:'🕓 ~16:15', note:'Najpiękniejsza księgarnia w Londynie. Edwardiańska architektura, drewniane galerie. Gratis wstęp — kup sobie książkę na lot!', see:['Daunt Books Marylebone — edwardiańska galeria z świetlikiem','Daunt Books interior — drewniane balkony i galerie','London\u2019s most beautiful bookshop'], next:{m:'🚇',x:'<div class="transit"><div class="leg">🚶 ~3 min do Baker Street</div><div class="leg">🚇 <span class="ln" style="background:#9364cc"></span><span class="stations">Baker Street → Liverpool Street</span></div><div class="dir">Metropolitan/Hammersmith & City · ~12 min</div></div>'}},
+   {t:'Leake Street Tunnel', icon:'🎨', lat:51.5025,lng:-0.1137, dur:'~20 min', anc:'🕞 ~15:30', note:'Legalny tunel graffiti pod Waterloo Station. Street art zmienia się codziennie. <b>Gratis</b>. Surowy, undergroundowy vibe.', see:['Leake Street Tunnel — legalny tunel graffiti','Banksy Cans Festival — tu zaczynał','London street art — artyści malują na żywo'], next:{m:'🚶🚇',x:'<div class="transit"><div class="leg">🚶 ~3 min do Waterloo stn</div><div class="leg">🚇 <span class="ln" style="background:#b06110"></span><span class="stations">Waterloo → Baker Street</span></div><div class="dir">Bakerloo kier. Harrow & Wealdstone · 6 przystanków · ~12 min</div><div class="leg">🚶 ~5 min do Marylebone High St</div></div>'}},
+   {t:'Daunt Books', icon:'📚', lat:51.5225,lng:-0.1525, dur:'~30 min', anc:'🕓 ~16:15', note:'Najpiękniejsza księgarnia w Londynie. Edwardiańska architektura, drewniane galerie. Gratis wstęp — kup sobie książkę na lot!', see:['Daunt Books Marylebone — edwardiańska galeria z świetlikiem','Daunt Books interior — drewniane balkony i galerie','London\u2019s most beautiful bookshop'], next:{m:'🚇',x:'<div class="transit"><div class="leg">🚶 ~3 min do Baker Street</div><div class="leg">🚇 <span class="ln" style="background:#9a208c"></span><span class="stations">Baker Street → Liverpool Street</span></div><div class="dir">Metropolitan kier. Aldgate · 6 przystanków · ~12 min</div></div>'}},
    {t:'Liverpool Street — odbiór bagażu', icon:'🧳', lat:51.5178,lng:-0.0817, anc:'🕔 ~17:00', note:'Odbierz bagaż z przechowalni. Masz ~30 min zapasu przed pociągiem.', next:{m:'🚆',x:'<div class="transit"><div class="leg">🚆 <span class="ln" style="background:#f47b20"></span><span class="stations">Liverpool Street → Stansted Airport</span></div><div class="dir">Stansted Express · ~47 min · będziesz ~18:20</div></div>'}},
    {t:'Stansted Airport', icon:'✈️', lat:51.8860,lng:0.2389, anc:'🛫 21:20 → Poznań', note:'Dużo czasu! Spokojnie: kontrola bezpieczeństwa, kolacja na lotnisku, może ostatnie zakupy w Duty Free. Lot ~2h.'},
    {t:'Lądowanie w Poznaniu', icon:'🏠', anc:'🛬 00:20+1', note:'Koniec wyprawy. Dobranoc!'},
@@ -420,6 +423,7 @@ const POIS = [
  {n:'🚲 Dok: Buckingham Gate', lat:51.4985,lng:-0.1418, day:'dok', ord:7},
  {n:'North Greenwich stn', lat:51.5030,lng:0.0033, day:'wt', ord:1},
  {n:'InterContinental London – The O2', lat:51.5019,lng:0.0044, day:'wt', ord:2},
+ {n:'Boom Battle Bar O2', lat:51.5028,lng:0.0048, day:'wt', ord:3},
  {n:'Apollo Victoria Theatre', lat:51.4959,lng:-0.1436, day:'sr', ord:1},
  {n:'Dennis Severs\u2019 House', lat:51.5214,lng:-0.0767, day:'czw', ord:1},
  {n:'Postman\u2019s Park', lat:51.5167,lng:-0.0975, day:'czw', ord:2},
@@ -478,12 +482,12 @@ function seeLink(s){
   const d=s.indexOf('\u2014');
   if(d<1){
     const q=encodeURIComponent(s+' London');
-    return `<a href="https://www.google.com/search?tbm=isch&q=${q}" target="_blank" class="see-link">${s}</a>`;
+    return `<a href="https://www.google.com/search?tbm=isch&q=${q}" target="_blank" class="see-link">${s}</a> <a href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" class="see-pin">📍</a>`;
   }
   const name=s.slice(0,d-1);
   const rest=s.slice(d+2);
   const q=encodeURIComponent(name+' London');
-  return `<a href="https://www.google.com/search?tbm=isch&q=${q}" target="_blank" class="see-link">${name}</a> \u2014 ${rest}`;
+  return `<a href="https://www.google.com/search?tbm=isch&q=${q}" target="_blank" class="see-link">${name}</a> <a href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" class="see-pin">📍</a> \u2014 ${rest}`;
 }
 
 /* ---------- PLAN ---------- */
@@ -544,7 +548,10 @@ function renderTL(){
     if(b.opt) chips+=`<span class="chip opt">★ ${b.opt}</span>`;
     if(b.lat) chips+=`<a href="${gmaps(b.lat,b.lng)}" target="_blank" class="chip gm"> GM</a>`;
     if(b.bike&&b.lat) chips+=`<button class="chip koob" data-koob="${b.lat},${b.lng}">⧉ Komoot</button>`;
-    let html=`<div class="dot"></div><div class="card"><div class="hd"><div class="badge">${b.icon||''}</div><h3>${b.t}</h3></div>`;
+    // Znajdź numer POI dla tej atrakcji
+    const poi = POIS.find(p => p.day === curDay && b.lat && Math.abs(p.lat - b.lat) < 0.002 && Math.abs(p.lng - b.lng) < 0.002);
+    const ordLabel = poi ? ` <span style="color:var(--red);font-weight:700">(${poi.ord})</span>` : '';
+    let html=`<div class="dot"></div><div class="card"><div class="hd"><div class="badge">${b.icon||''}</div><h3>${b.t}${ordLabel}</h3></div>`;
     if(chips) html+=`<div class="chips">${chips}</div>`;
     if(b.note) html+=`<p>${b.note}</p>`;
     if(b.see&&b.see.length) html+=`<ul class="see-list">${b.see.map(s=>`<li>${seeLink(s)}</li>`).join('')}</ul>`;
