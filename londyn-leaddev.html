@@ -171,13 +171,13 @@
   /* Bottom nav */
   nav{position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:540px;
     background:rgba(255,253,247,.92); backdrop-filter:blur(10px); border-top:1px solid var(--line);
-    display:flex; padding:4px 6px calc(4px + env(safe-area-inset-bottom)); z-index:500;}
-  nav button{flex:1; background:none; border:none; cursor:pointer; padding:10px 4px; min-height:50px; color:var(--ink2);
-    font-family:var(--body); font-size:11px; font-weight:600; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    display:flex; padding:2px 4px calc(2px + env(safe-area-inset-bottom)); z-index:500;}
+  nav button{flex:1; background:none; border:none; cursor:pointer; padding:12px 0; min-height:58px; color:var(--ink2);
+    font-family:var(--body); font-size:11px; font-weight:600; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
     -webkit-tap-highlight-color:rgba(215,38,61,0.15); transition:transform 0.1s;}
-  nav button .i{font-size:22px; line-height:1;}
+  nav button .i{font-size:24px; line-height:1;}
   nav button.on{color:var(--red);}
-  nav button:active{transform:scale(0.92);}
+  nav button:active{transform:scale(0.94); background:rgba(215,38,61,0.08); border-radius:12px;}
 </style>
 </head>
 <body>
