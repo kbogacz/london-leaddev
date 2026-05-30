@@ -863,15 +863,8 @@ function getActiveConfig() {
   return null;
 }
 
-// Sprawdź czy pokazywać tracker
+// Sprawdź czy pokazywać tracker (tylko w prawdziwy dzień)
 function shouldShowTracker() {
-  const config = getActiveConfig();
-  if (!config) return false;
-  return true; // Zawsze pokazuj gdy dzień ma config
-}
-
-// Sprawdź czy to prawdziwy dzień (nie demo)
-function isRealDay() {
   const config = getActiveConfig();
   if (!config) return false;
   const now = new Date();
@@ -992,9 +985,8 @@ function updateTimeTracker() {
     sbCountdown.textContent = `Po ${config.deadlineLabel}`;
   }
   
-  // DEMO badge jeśli nie prawdziwy dzień
-  const demoLabel = isRealDay() ? '' : ' <span style="font-size:10px;background:#fbbf24;color:#1c2230;padding:2px 6px;border-radius:4px;margin-left:6px">DEMO</span>';
-  sbTitle.innerHTML = `${config.icon} ${config.title}${demoLabel}`;
+  // Tytuł bannera
+  sbTitle.textContent = `${config.icon} ${config.title}`;
   
   // Progress bar
   const maxTime = 6 * 60;
