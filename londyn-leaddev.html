@@ -233,6 +233,26 @@
   .blk.is-current .dot{background:#4ade80 !important; border-color:#4ade80 !important; box-shadow:0 0 8px rgba(74,222,128,0.5);}
   .blk.is-next .card{border:2px solid #60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,0.15), var(--shadow);}
   .blk.is-next .dot{border-color:#60a5fa !important;}
+  /* Apple Maps export section */
+  .am-export{margin-top:24px; padding-top:20px; border-top:2px solid var(--line);}
+  .am-export h3{font-size:15px; margin:0 0 8px; color:var(--ink);}
+  .am-export .am-intro{font-size:12px; color:var(--ink2); margin:0 0 16px; line-height:1.5;}
+  .am-export .am-group{margin-bottom:16px;}
+  .am-export .am-group-title{font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:#fff; padding:4px 10px; border-radius:6px; margin-bottom:8px; display:inline-block;}
+  .am-export .am-group-title.baza{background:#0a7abf;}
+  .am-export .am-group-title.nd{background:#d7263d;}
+  .am-export .am-group-title.pon{background:#1f7a72;}
+  .am-export .am-group-title.wt{background:#e07b20;}
+  .am-export .am-group-title.sr{background:#7952b3;}
+  .am-export .am-group-title.czw{background:#059669;}
+  .am-export .am-group-title.dok{background:#6b7280;}
+  .am-export .am-group-title.food{background:#c2410c;}
+  .am-list{list-style:none; margin:0; padding:0;}
+  .am-list li{margin-bottom:4px;}
+  .am-link{display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#f8f6f2; border:1px solid var(--line); border-radius:10px; text-decoration:none; color:var(--ink); font-size:13px; transition:all 0.15s;}
+  .am-link:active{background:#f0ebe0; transform:scale(0.98);}
+  .am-link .am-name{font-weight:500;}
+  .am-link .am-badge{font-size:10px; font-weight:700; color:#fff; background:#1a1a1a; padding:3px 8px; border-radius:5px;}
 </style>
 </head>
 <body>
@@ -333,6 +353,102 @@
         <li><b>Śr</b> ~19° — lżej</li>
         <li><b>Czw</b> ~17° — najwięcej deszczu</li>
       </ul>
+    </div>
+
+    <!-- Apple Maps Export -->
+    <div class="am-export">
+      <h3>📍 Dodaj do Apple Maps</h3>
+      <p class="am-intro">Kliknij miejsce → otworzy się Apple Maps → naciśnij <b>"+"</b> → <b>"Dodaj do przewodnika"</b>.<br>Stwórz przewodnik "Londyn 2026" i dodawaj miejsca — będą oznaczone na mapie.</p>
+
+      <div class="am-group">
+        <div class="am-group-title baza">Baza</div>
+        <ul class="am-list">
+          <li><a href="https://maps.apple.com/?q=13+Cassilis+Road+E14+9BS+London" target="_blank" class="am-link"><span class="am-name">Hotel — 13 Cassilis Road E14 9BS</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Canary+Wharf+Station+London" target="_blank" class="am-link"><span class="am-name">Canary Wharf Station</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=InterContinental+London+The+O2" target="_blank" class="am-link"><span class="am-name">InterContinental O2 (konferencja)</span><span class="am-badge">AM</span></a></li>
+        </ul>
+      </div>
+
+      <div class="am-group">
+        <div class="am-group-title nd">Niedziela — Przyjazd + rower</div>
+        <ul class="am-list">
+          <li><a href="https://maps.apple.com/?q=London+Stansted+Airport" target="_blank" class="am-link"><span class="am-name">Stansted Airport</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Liverpool+Street+Station+London" target="_blank" class="am-link"><span class="am-name">Liverpool Street Station</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Brick+Lane+London" target="_blank" class="am-link"><span class="am-name">Brick Lane / Shoreditch</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Tower+of+London" target="_blank" class="am-link"><span class="am-name">Tower of London</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Tower+Bridge+London" target="_blank" class="am-link"><span class="am-name">Tower Bridge</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Westminster+Bridge+London" target="_blank" class="am-link"><span class="am-name">Westminster Bridge / Big Ben</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=London+Eye" target="_blank" class="am-link"><span class="am-name">South Bank / London Eye</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=St+James+Park+London" target="_blank" class="am-link"><span class="am-name">St James's Park</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Buckingham+Palace+London" target="_blank" class="am-link"><span class="am-name">Buckingham Palace</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Victoria+Station+London" target="_blank" class="am-link"><span class="am-name">Victoria Station (kolacja)</span><span class="am-badge">AM</span></a></li>
+        </ul>
+      </div>
+
+      <div class="am-group">
+        <div class="am-group-title pon">Poniedziałek — Muzea + Herkules</div>
+        <ul class="am-list">
+          <li><a href="https://maps.apple.com/?q=South+Kensington+Station+London" target="_blank" class="am-link"><span class="am-name">South Kensington Station</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Victoria+and+Albert+Museum+London" target="_blank" class="am-link"><span class="am-name">V&A Museum</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Borough+Market+London" target="_blank" class="am-link"><span class="am-name">Borough Market</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Tate+Modern+London" target="_blank" class="am-link"><span class="am-name">Tate Modern</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Millennium+Bridge+London" target="_blank" class="am-link"><span class="am-name">Millennium Bridge</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=St+Pauls+Cathedral+London" target="_blank" class="am-link"><span class="am-name">St Paul's Cathedral</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Covent+Garden+London" target="_blank" class="am-link"><span class="am-name">Covent Garden</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Theatre+Royal+Drury+Lane+London" target="_blank" class="am-link"><span class="am-name">Theatre Royal Drury Lane (Herkules)</span><span class="am-badge">AM</span></a></li>
+        </ul>
+      </div>
+
+      <div class="am-group">
+        <div class="am-group-title wt">Wtorek — Konferencja</div>
+        <ul class="am-list">
+          <li><a href="https://maps.apple.com/?q=North+Greenwich+Station+London" target="_blank" class="am-link"><span class="am-name">North Greenwich Station</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Boom+Battle+Bar+O2+London" target="_blank" class="am-link"><span class="am-name">Boom Battle Bar O2</span><span class="am-badge">AM</span></a></li>
+        </ul>
+      </div>
+
+      <div class="am-group">
+        <div class="am-group-title sr">Środa — Konferencja + Wicked</div>
+        <ul class="am-list">
+          <li><a href="https://maps.apple.com/?q=Apollo+Victoria+Theatre+London" target="_blank" class="am-link"><span class="am-name">Apollo Victoria Theatre (Wicked)</span><span class="am-badge">AM</span></a></li>
+        </ul>
+      </div>
+
+      <div class="am-group">
+        <div class="am-group-title czw">Czwartek — Hidden gems + lot</div>
+        <ul class="am-list">
+          <li><a href="https://maps.apple.com/?q=Dennis+Severs+House+London" target="_blank" class="am-link"><span class="am-name">Dennis Severs' House</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Postmans+Park+London" target="_blank" class="am-link"><span class="am-name">Postman's Park</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Hunterian+Museum+London" target="_blank" class="am-link"><span class="am-name">Hunterian Museum</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Sir+John+Soanes+Museum+London" target="_blank" class="am-link"><span class="am-name">Sir John Soane's Museum</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Leake+Street+Tunnel+London" target="_blank" class="am-link"><span class="am-name">Leake Street Tunnel</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Daunt+Books+Marylebone+London" target="_blank" class="am-link"><span class="am-name">Daunt Books Marylebone</span><span class="am-badge">AM</span></a></li>
+        </ul>
+      </div>
+
+      <div class="am-group">
+        <div class="am-group-title dok">🚲 Doki rowerowe (niedziela)</div>
+        <ul class="am-list">
+          <li><a href="https://maps.apple.com/?q=Tower+Gardens+Santander+Cycles+London" target="_blank" class="am-link"><span class="am-name">Tower Gardens (start)</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Storeys+Gate+Santander+Cycles+London" target="_blank" class="am-link"><span class="am-name">Storey's Gate (Westminster)</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Jubilee+Gardens+Santander+Cycles+London" target="_blank" class="am-link"><span class="am-name">Jubilee Gardens (South Bank)</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=St+James+Park+Station+Santander+Cycles" target="_blank" class="am-link"><span class="am-name">St James's Park Station</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Buckingham+Gate+Santander+Cycles+London" target="_blank" class="am-link"><span class="am-name">Buckingham Gate</span><span class="am-badge">AM</span></a></li>
+        </ul>
+      </div>
+
+      <div class="am-group">
+        <div class="am-group-title food">🍴 Top restauracje</div>
+        <ul class="am-list">
+          <li><a href="https://maps.apple.com/?q=Beigel+Bake+Brick+Lane+London" target="_blank" class="am-link"><span class="am-name">Beigel Bake (niedziela, Brick Lane)</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=The+Thomas+Cubitt+London" target="_blank" class="am-link"><span class="am-name">The Thomas Cubitt (niedziela, kolacja)</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Daquise+South+Kensington+London" target="_blank" class="am-link"><span class="am-name">Daquise (poniedziałek, polska!)</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Padella+Borough+Market+London" target="_blank" class="am-link"><span class="am-name">Padella (poniedziałek, makaron)</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Rules+Restaurant+Covent+Garden+London" target="_blank" class="am-link"><span class="am-name">Rules (poniedziałek, najstarsza restauracja)</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=WatchHouse+Coffee+Canary+Wharf+London" target="_blank" class="am-link"><span class="am-name">WatchHouse (wt/śr/czw, kawa)</span><span class="am-badge">AM</span></a></li>
+          <li><a href="https://maps.apple.com/?q=Dishoom+London+Holborn" target="_blank" class="am-link"><span class="am-name">Dishoom (czwartek, indyjska)</span><span class="am-badge">AM</span></a></li>
+        </ul>
+      </div>
     </div>
   </section>
 
