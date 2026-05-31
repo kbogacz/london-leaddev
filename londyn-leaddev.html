@@ -53,6 +53,10 @@
   .refresh-btn:active{opacity:1;}
   .refresh-btn.spinning .icon{animation:spin 0.8s linear infinite;}
   @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  /* Time toggle button */
+  .time-toggle{background:none; border:none; font-size:16px; cursor:pointer; padding:4px 6px; border-radius:6px; transition:all 0.2s; background:rgba(215,38,61,0.2);}
+  .time-toggle:active{transform:scale(0.95);}
+  .time-toggle.off{opacity:0.4; background:rgba(255,255,255,0.1); filter:grayscale(1);}
   .cache-version{font-size:10px; color:#fff; font-family:var(--body); opacity:0.7;}
   
   /* Update toast */
@@ -237,6 +241,7 @@
     <div class="stripe"></div>
     <div class="status-group">
       <div class="online-badge" id="online-status">online</div>
+      <button class="time-toggle" id="time-toggle" title="Włącz/wyłącz tracker czasu i przyciemnianie kart">⏱️</button>
       <button class="refresh-btn" id="refresh-btn" title="Odśwież aplikację"><span class="icon">🔄</span></button>
       <span class="cache-version" id="cache-version"></span>
     </div>
@@ -1522,6 +1527,30 @@ if ('serviceWorker' in navigator) {
 
 /* ---------- TIME TRACKER (niedziela: zachód, poniedziałek: Herkules, czwartek: lot) ---------- */
 
+// ===== TIME TRACKER TOGGLE =====
+let timeTrackerEnabled = localStorage.getItem('timeTrackerEnabled') !== 'false'; // domyślnie włączony
+const timeToggleBtn = document.getElementById('time-toggle');
+
+function updateTimeToggleUI() {
+  if (timeTrackerEnabled) {
+    timeToggleBtn.classList.remove('off');
+    timeToggleBtn.title = 'Tracker czasu WŁĄCZONY — kliknij aby wyłączyć';
+  } else {
+    timeToggleBtn.classList.add('off');
+    timeToggleBtn.title = 'Tracker czasu WYŁĄCZONY — kliknij aby włączyć';
+  }
+}
+
+function toggleTimeTracker() {
+  timeTrackerEnabled = !timeTrackerEnabled;
+  localStorage.setItem('timeTrackerEnabled', timeTrackerEnabled);
+  updateTimeToggleUI();
+  updateTimeTracker(); // od razu aktualizuj widok
+}
+
+timeToggleBtn.addEventListener('click', toggleTimeTracker);
+updateTimeToggleUI();
+
 // ===== KONFIGURACJA NIEDZIELI (zachód słońca) =====
 const SUNDAY_CONFIG = {
   icon: '🌅',
@@ -1620,8 +1649,9 @@ function getActiveConfig() {
   return null;
 }
 
-// Sprawdź czy pokazywać tracker (tylko w prawdziwy dzień)
+// Sprawdź czy pokazywać tracker (tylko w prawdziwy dzień i gdy toggle włączony)
 function shouldShowTracker() {
+  if (!timeTrackerEnabled) return false; // sprawdź toggle
   const config = getActiveConfig();
   if (!config) return false;
   const now = new Date();
