@@ -104,11 +104,26 @@
   .mapbtn{display:none;}
   .chip.gm{background:var(--red); color:#fff; text-decoration:none; font-weight:700; border-radius:10px; padding:6px 12px; font-size:13px;}
   .chip.gm:active{opacity:.8;}
+  .chip.am{background:#1a1a1a; color:#fff; text-decoration:none; font-weight:700; border-radius:10px; padding:6px 12px; font-size:13px;}
+  .chip.am:active{opacity:.8;}
   .chip.koob{background:#e3f0e8; color:#1a5c2a; border:none; cursor:pointer; font-family:var(--body); border-radius:9px;}
   .chip.koob:active{opacity:.8;}
   .spin{font-size:12px; text-decoration:none; margin-left:2px; display:inline-block; opacity:.9; vertical-align:middle;}
-  .station-link{color:var(--ink); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:3px; padding:3px 8px; margin:-3px 2px -3px 0; border-radius:8px; background:rgba(215,38,61,0.1); transition:background 0.15s;}
+  .station-link{color:var(--ink); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:3px; padding:3px 8px; margin:-3px 2px -3px 0; border-radius:8px; background:rgba(215,38,61,0.1); transition:background 0.15s; cursor:pointer;}
   .station-link:active{background:rgba(215,38,61,0.25);}
+  /* Map choice modal */
+  .map-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.15s ease-out;}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .map-modal{background:#fff;border-radius:16px;padding:20px 24px;width:240px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.3);animation:scaleIn 0.15s ease-out;}
+  @keyframes scaleIn{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+  .map-modal h4{margin:0 0 16px;font-size:15px;color:var(--ink);font-weight:600;}
+  .map-modal-btns{display:flex;gap:10px;justify-content:center;}
+  .map-modal-btn{flex:1;padding:14px 0;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;display:block;}
+  .map-modal-btn.gm{background:var(--red);color:#fff;}
+  .map-modal-btn.gm:active{opacity:0.8;}
+  .map-modal-btn.am{background:#1a1a1a;color:#fff;}
+  .map-modal-btn.am:active{opacity:0.8;}
+  .map-modal-close{margin-top:14px;color:var(--ink2);font-size:13px;cursor:pointer;}
   .see-list{margin:10px 0 0; padding-left:16px; font-size:13px; color:var(--ink2); line-height:1.5;}
   .see-list li{margin-bottom:3px;}
   .see-link{color:var(--ink); font-weight:600; text-decoration:underline; text-decoration-color:var(--thames); text-decoration-thickness:1.5px; text-underline-offset:2px;}
@@ -799,6 +814,7 @@ Miłego lotu do domu. I miłego czytania.`}
 
 /* ---------- POMOCNICZE ---------- */
 const gmaps = (lat,lng)=>`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+const amaps = (lat,lng)=>`https://maps.apple.com/?ll=${lat},${lng}&q=Pin`;
 const dayColor = d => d==='nd'?'#d7263d':(d==='pon'?'#1f7a72':(d==='dok'?'#0a7abf':(d==='wt'?'#e07b20':(d==='sr'?'#7952b3':(d==='czw'?'#059669':'#bd8327')))));
 const STATIONS={
   'Liverpool Street':[51.5178,-0.0817],'Tottenham Hale':[51.5882,-0.0597],
@@ -814,6 +830,27 @@ const STATIONS={
   'St Paul\u2019s':[51.5146,-0.0973],'Tottenham Court Road':[51.5165,-0.1310],
   'Chancery Lane':[51.5185,-0.1111],
 };
+/* ---------- MAP MODAL ---------- */
+function showMapModal(lat, lng, title) {
+  const overlay = document.createElement('div');
+  overlay.className = 'map-modal-overlay';
+  overlay.innerHTML = `
+    <div class="map-modal">
+      <h4>${title || 'Otwórz w mapach'}</h4>
+      <div class="map-modal-btns">
+        <a href="${gmaps(lat,lng)}" target="_blank" class="map-modal-btn gm">GM</a>
+        <a href="${amaps(lat,lng)}" target="_blank" class="map-modal-btn am">AM</a>
+      </div>
+      <div class="map-modal-close">Anuluj</div>
+    </div>
+  `;
+  overlay.addEventListener('click', e => {
+    if(e.target === overlay || e.target.classList.contains('map-modal-close') || e.target.classList.contains('map-modal-btn')) {
+      overlay.remove();
+    }
+  });
+  document.body.appendChild(overlay);
+}
 function linkStations(h){
   if(!h) return h;
   let o=h;
@@ -827,9 +864,9 @@ function linkStations(h){
       firstMatch = {name: n, lat: la, lng: ln};
     }
   }
-  // Zamień tylko pierwszą znalezioną stację na klikalny link z pinem
+  // Zamień tylko pierwszą znalezioną stację na klikalny span z modalem
   if(firstMatch){
-    o = o.replace(firstMatch.name, `<a href="${gmaps(firstMatch.lat,firstMatch.lng)}" target="_blank" class="station-link">📍 ${firstMatch.name}</a>`);
+    o = o.replace(firstMatch.name, `<span class="station-link" onclick="showMapModal(${firstMatch.lat},${firstMatch.lng},'📍 ${firstMatch.name}')">📍 ${firstMatch.name}</span>`);
   }
   return o;
 }
@@ -901,7 +938,7 @@ function renderTL(){
     if(b.dur) chips+=`<span class="chip dur">⏱ ${b.dur}</span>`;
     if(b.anc) chips+=`<span class="chip anc">${b.anc}</span>`;
     if(b.opt) chips+=`<span class="chip opt">★ ${b.opt}</span>`;
-    if(b.lat) chips+=`<a href="${gmaps(b.lat,b.lng)}" target="_blank" class="chip gm"> GM</a>`;
+    if(b.lat) chips+=`<a href="${gmaps(b.lat,b.lng)}" target="_blank" class="chip gm">GM</a><a href="${amaps(b.lat,b.lng)}" target="_blank" class="chip am">AM</a>`;
     if(b.bike&&b.lat) chips+=`<button class="chip koob" data-koob="${b.lat},${b.lng}">⧉ Komoot</button>`;
     // Znajdź numer POI dla tej atrakcji
     const poi = POIS.find(p => p.day === curDay && b.lat && Math.abs(p.lat - b.lat) < 0.002 && Math.abs(p.lng - b.lng) < 0.002);
