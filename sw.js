@@ -1,4 +1,4 @@
-const CACHE = 'majorka-2026-v10';
+const CACHE = 'majorka-2026-v24';
 const ASSETS = [
   './',
   './index.html',
