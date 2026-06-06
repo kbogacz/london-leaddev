@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Majorka 2026</title>
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f3">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f1113">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Majorka">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="favicon-64.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f6f3; --bg2:#fbfbf9; --card:#ffffff; --ink:#16171b; --muted:#787b82;
+    --line:#ecebe6; --line-2:#f1f0ec;
+    --accent:#0e8c7c; --accent-d:#0a6358; --accent-soft:#e6f3f0;
+    --coral:#f1875a; --coral-soft:#fcefe7;
+    --amber:#e8a23a; --amber-soft:#fbf2dc;
+    --green:#2f9e6b;
+    --r:20px; --r-sm:14px;
+    --shadow:0 1px 2px rgba(20,22,26,.04), 0 10px 30px -20px rgba(20,22,26,.25);
+    --shadow-lg:0 2px 6px rgba(20,22,26,.05), 0 24px 50px -28px rgba(20,22,26,.30);
+    --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
+    color-scheme:light dark;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:var(--bg)}
+  body{
+    font-family:'Schibsted Grotesk',system-ui,sans-serif;
+    background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased; line-height:1.5; letter-spacing:-.005em;
+    overscroll-behavior-y:none;
+  }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(80% 50% at 85% -5%, rgba(14,140,124,.07), transparent 60%),
+      radial-gradient(70% 40% at 0% 8%, rgba(241,135,90,.06), transparent 55%);
+  }
+  .app{max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+
+  /* Header — airy, light */
+  header{padding:calc(var(--safe-top) + 22px) 22px 6px;position:relative}
+  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);font-weight:600}
+  .eyebrow .sun{width:9px;height:9px;border-radius:50%;background:var(--coral)}
+  h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:40px;line-height:.98;
+    margin:8px 0 10px;letter-spacing:-.025em}
+  .meta-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);
+    padding:6px 11px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--ink);box-shadow:var(--shadow)}
+  .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+  .phase{display:flex;gap:9px;padding:16px 22px 6px}
+  .phase .pill{flex:1;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:11px 13px 11px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .phase .pill::after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+  .phase .pill.p1::after{background:var(--coral)} .phase .pill.p2::after{background:var(--accent)}
+  .phase .pill b{display:block;color:var(--ink);font-size:13px;font-weight:700;letter-spacing:-.01em}
+  .phase .pill span{font-size:11.5px;color:var(--muted)}
+
+  main{flex:1;padding:6px 16px calc(110px + var(--safe-bot))}
+  section{display:none}
+  section.active{display:block}
+  section.active>*{opacity:0;transform:translateY(10px);animation:rise .5s cubic-bezier(.22,1,.36,1) forwards}
+  section.active>*:nth-child(1){animation-delay:.02s}
+  section.active>*:nth-child(2){animation-delay:.07s}
+  section.active>*:nth-child(3){animation-delay:.12s}
+  section.active>*:nth-child(n+4){animation-delay:.16s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  .sec-head{padding:18px 6px 6px}
+  .sec-head .day{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.02em;text-transform:uppercase}
+  .sec-head h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:28px;margin:6px 0 4px;letter-spacing:-.02em}
+  .sec-head p{margin:0;color:var(--muted);font-size:14px}
+
+  /* Base card */
+  .base{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:18px;box-shadow:var(--shadow);margin:14px 0 6px}
+  .base h3{font-family:'Bricolage Grotesque',sans-serif;font-size:21px;margin:0 0 3px;font-weight:700;letter-spacing:-.015em}
+  .base .sub{color:var(--muted);font-size:13px;margin-bottom:12px}
+  .kv{display:flex;gap:10px;font-size:13.5px;padding:8px 0;border-top:1px solid var(--line-2)}
+  .kv:first-of-type{border-top:none;padding-top:2px}
+  .kv .k{color:var(--muted);min-width:78px;font-weight:500}
+  .kv .v{font-weight:600}
+  .stars{color:var(--amber);letter-spacing:1px;font-size:15px}
+
+  /* Timeline */
+  .timeline{position:relative;margin:8px 0 0;padding-left:4px}
+  .step{position:relative;padding:0 0 12px 32px}
+  .step::before{content:"";position:absolute;left:11px;top:26px;bottom:-2px;width:2px;background:var(--line)}
+  .step:last-child::before{display:none}
+  .node{position:absolute;left:0;top:6px;width:23px;height:23px;border-radius:50%;background:var(--card);
+    border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;
+    color:var(--accent);z-index:1;box-shadow:var(--shadow)}
+  .step.done .node{background:var(--accent);border-color:var(--accent);color:#fff}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px;box-shadow:var(--shadow);transition:opacity .25s}
+  .step.done .card{opacity:.55}
+  .time-chip{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px;color:var(--accent-d);
+    background:var(--accent-soft);padding:4px 10px;border-radius:8px;margin-bottom:9px;letter-spacing:-.01em}
+  .card h4{margin:0 0 3px;font-size:16.5px;font-weight:700;letter-spacing:-.015em}
+  .card .where{font-size:13px;color:var(--muted);margin-bottom:8px}
+  .card ul{margin:8px 0 0;padding-left:18px;font-size:13px;color:#4a4d54}
+  .card ul li{margin:3px 0}
+  .badge{display:inline-block;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:9px;margin:8px 7px 0 0;line-height:1.35}
+  .b-warn{background:var(--coral-soft);color:#b65a32;border:1px solid #f6dccb}
+  .b-tip{background:var(--accent-soft);color:var(--accent-d);border:1px solid #cfe9e3}
+  .b-conf{background:#f4f4f1;color:var(--ink);border:1px solid var(--line);cursor:pointer;font-family:inherit}
+  .b-conf:active{transform:scale(.97)}
+  a.badge{text-decoration:none}
+  .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .btn{flex:1;min-width:110px;text-align:center;text-decoration:none;font-size:13px;font-weight:600;
+    padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:transform .1s,background .2s}
+  .btn-map{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .btn-check.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn:active{transform:scale(.97)}
+
+  /* Segmented control */
+  .seg{display:flex;gap:4px;background:#eeeeea;border-radius:14px;padding:4px;margin:16px 0 14px}
+  .seg button{flex:1;border:none;background:transparent;font-family:inherit;font-size:12px;font-weight:600;
+    color:var(--muted);padding:9px 3px;border-radius:10px;cursor:pointer;white-space:nowrap;transition:.2s;letter-spacing:-.01em}
+  .seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+
+  /* Place cards */
+  .place{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);padding:15px;margin-bottom:11px;box-shadow:var(--shadow);transition:transform .12s}
+  .place:active{transform:scale(.992)}
+  .place .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .place h4{margin:0;font-size:17px;font-weight:700;line-height:1.15;letter-spacing:-.02em}
+  .rate{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;color:#8a6516;
+    background:var(--amber-soft);border:1px solid #f0e1b8;padding:4px 9px;border-radius:10px;white-space:nowrap}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0 0}
+  .tag{font-size:11.5px;font-weight:600;color:var(--muted);background:#f3f2ee;border-radius:8px;padding:3px 9px}
+  .tag.dist{background:var(--accent-soft);color:var(--accent-d)}
+  .tag.eur{background:#eef6f0;color:var(--green)}
+  .tag.shut{background:var(--coral-soft);color:#b65a32}
+  .place p.note,.base p.note{margin:10px 0 0;font-size:13.5px;color:#4a4d54;line-height:1.5}
+  .place .actions{margin-top:12px}
+  .bike-note{margin-top:14px}
+  .bike-note h3{font-size:18px}
+
+  /* Floating nav */
+  footer.nav{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:520px;margin:0 auto;
+    padding:0 14px calc(12px + var(--safe-bot));pointer-events:none;
+  }
+  .navbar{
+    pointer-events:auto;display:flex;gap:2px;background:rgba(255,255,255,.78);
+    backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);
+    border:1px solid rgba(20,22,26,.06);border-radius:22px;padding:7px 6px;box-shadow:var(--shadow-lg);
+  }
+  .navbar button{
+    flex:1;border:none;background:transparent;font-family:inherit;cursor:pointer;color:var(--muted);
+    padding:7px 2px 6px;border-radius:15px;display:flex;flex-direction:column;align-items:center;gap:3px;transition:.22s
+  }
+  .navbar .ico{font-size:18px;line-height:1;transition:transform .22s}
+  .navbar .lab{font-size:9.5px;font-weight:600;letter-spacing:.005em}
+  .navbar button.on{background:var(--ink);color:#fff}
+  .navbar button.on .ico{transform:translateY(-1px) scale(1.05)}
+
+  .toast{position:fixed;left:50%;bottom:calc(100px + var(--safe-bot));transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:10px 18px;border-radius:999px;
+    opacity:0;transition:.28s cubic-bezier(.22,1,.36,1);z-index:50;pointer-events:none;box-shadow:var(--shadow-lg)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ---------- Dark theme ---------- */
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1113; --bg2:#15181b; --card:#1a1d21; --ink:#f2f3f0; --muted:#9aa1a9;
+      --line:#2a2e34; --line-2:#23272c;
+      --accent:#3fcab4; --accent-d:#7fe6d6; --accent-soft:rgba(63,202,180,.15);
+      --coral:#f3936a; --coral-soft:rgba(243,147,106,.16);
+      --amber:#eab24f; --amber-soft:rgba(234,178,79,.16);
+      --green:#52c98e;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 30px -20px rgba(0,0,0,.7);
+      --shadow-lg:0 2px 8px rgba(0,0,0,.5), 0 28px 60px -30px rgba(0,0,0,.8);
+    }
+    .seg{background:var(--line-2)}
+    .tag{background:var(--line-2);color:var(--muted)}
+    .tag.eur{background:rgba(82,201,142,.14);color:var(--green)}
+    .tag.dist{color:var(--accent-d)}
+    .tag.shut{color:var(--coral)}
+    .b-conf{background:var(--bg2);color:var(--ink);border-color:var(--line)}
+    .b-warn{color:var(--coral);border-color:rgba(243,147,106,.3)}
+    .b-tip{color:var(--accent-d);border-color:rgba(63,202,180,.3)}
+    .rate{color:var(--amber);border-color:rgba(234,178,79,.3)}
+    .place p.note,.base p.note,.card ul{color:#c3c8ce}
+    .btn{background:var(--bg2)}
+    .navbar{background:rgba(26,29,33,.82);border-color:rgba(255,255,255,.07)}
+    .navbar button.on{background:var(--accent);color:#06241f}
+    .navbar button.on .ico{filter:none}
+    .chip .dot{box-shadow:0 0 0 3px var(--accent-soft)}
+    /* Fix cascade: btn-map must beat generic .btn override in dark */
+    .btn-map{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+    .btn-check.on{background:var(--accent);color:#08251e;border-color:var(--accent)}
+    .step.done .node{background:var(--accent);border-color:var(--accent);color:#08251e}
+    .toast{background:#e4f6f3;color:var(--accent-d)}
+  }
+  .tag.gem{background:rgba(63,202,180,.15);color:var(--accent-d)}
+  @media(prefers-color-scheme:dark){.tag.gem{background:rgba(63,202,180,.18);color:var(--accent-d)}}
+
+  .btn-pod{background:var(--accent);color:#06241f;border-color:var(--accent)}
+  .modal{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;
+    background:rgba(8,10,12,.55);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+  .modal.open{display:flex}
+  .modal-card{background:var(--card);width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;
+    border-radius:24px 24px 0 0;border:1px solid var(--line);box-shadow:var(--shadow-lg);
+    animation:sheet .38s cubic-bezier(.22,1,.36,1)}
+  @keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+  .modal-head{display:flex;align-items:center;gap:10px;padding:18px 18px 8px}
+  .modal-head h3{font-family:'Bricolage Grotesque',sans-serif;font-size:20px;margin:0;flex:1;letter-spacing:-.02em;line-height:1.1}
+  .modal-head button{border:none;background:var(--bg2);color:var(--muted);width:34px;height:34px;border-radius:50%;
+    font-size:15px;cursor:pointer;flex:none}
+  .modal-meta{padding:0 18px 8px;color:var(--muted);font-size:11.5px;font-weight:600;letter-spacing:.01em;
+    text-transform:uppercase;border-bottom:1px solid var(--line-2)}
+  .modal-body{padding:14px 18px;overflow-y:auto;font-size:14.5px;line-height:1.62;white-space:pre-wrap;
+    color:#3c4148;-webkit-overflow-scrolling:touch;flex:1}
+  @media(prefers-color-scheme:dark){.modal-body{color:#cfd3d8}}
+  .modal-foot{padding:12px 16px calc(16px + var(--safe-bot));border-top:1px solid var(--line-2)}
+  .modal-foot .btn{width:100%}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="eyebrow"><span class="sun"></span> Wyjazd rodzinny</div>
+    <h1>Majorka 2026</h1>
+    <div class="meta-row">
+      <span class="chip">🗓️ 6 – 18 czerwca</span>
+      <span class="chip"><span class="dot"></span><span id="cd">—</span></span>
+    </div>
+  </header>
+
+  <main id="main"></main>
+
+  <footer class="nav"><div class="navbar" id="nav"></div></footer>
+  <div class="toast" id="toast"></div>
+
+  <div class="modal" id="podModal">
+    <div class="modal-card">
+      <div class="modal-head"><h3 id="podTitle"></h3><button id="podClose" aria-label="Zamknij">✕</button></div>
+      <div class="modal-meta">🎧 Skrypt podcastu · ok. 5 min · wklej do ElevenReader</div>
+      <div class="modal-body" id="podBody"></div>
+      <div class="modal-foot"><button id="podCopy" class="btn btn-map">📋 Kopiuj tekst podcastu</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- DATA ---------- */
+const maps = (q) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+const websearch = (q) => "https://www.google.com/search?q=" + encodeURIComponent(q);
+const gimg = (q) => "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(q);
+const TABS = [
+  {id:"arr", ico:"☀️", lab:"Przylot", type:"logi",
+   day:"Sobota · 6 czerwca", title:"Przylot na Majorkę", sub:"Lot, odbiór auta i dojazd do finca.",
+   steps:[
+     {time:"10:10 → 13:05", title:"Lot FR 955 · Poznań → Palma", where:"Ryanair · bezpośredni, 2 godz 55 min",
+      conf:"FR 955",
+      list:["Odprawa online w myRyanair przed wyjazdem.","Status na dziś: Na czas. Bramka — sprawdź w aplikacji."]},
+     {time:"po 13:05", title:"Odbiór auta · Toyota Proace (7 miejsc)", where:"Record Go · lotnisko Palma (PMI) · skrzynia manualna",
+      conf:"voucher Record Go",
+      list:["Record Go działa z dojazdem busem spod terminalu — licz realnie 45–60 min od lądowania do kierownicy.","Nominalny czas w rezerwacji: 13:30, ale odbierzesz po dotarciu — bez stresu."],
+      warn:"Przy odbiorze: prawo jazdy, karta KREDYTOWA na kaucję, voucher, paszport/dowód. Bez kompletu nie wydadzą auta.",
+      mapq:"Record Go Palma de Mallorca Airport"},
+     {time:"~45 min", title:"Dojazd PMI → Finca Can Puput", where:"Campanet · ok. 50 km autostradą Ma-13",
+      tip:"Zrób zakupy po drodze (Eroski/Mercadona w Inca lub Sa Pobla) — finca jest na uboczu.",
+      mapq:"Finca Can Puput Campanet Mallorca"},
+     {time:"15:00 – 20:00", title:"Zameldowanie w finca", where:"Okno przyjazdu wg Holidu",
+      list:["Podaj gospodarzowi godzinę dotarcia, jeśli poprosi.","Wieczór: basen, rozpakowanie, kolacja w Campanet."]}
+   ],
+   bikeNote:{title:"Rowery na pobyt w fince", text:"Pełna lista jest w zakładce 🏡 Finca. Przy fince na uboczu najwygodniejsze są wypożyczalnie z dowozem pod nocleg (okolice Pollençy/Inki).", links:[{n:"Mallorca Bike Hire", q:"Mallorca Bike Hire Port de Pollença"},{n:"Bike Per Tots (Inca)", q:"Bike Per Tots Inca"}]}},
+
+  {id:"finca", ico:"🏡", lab:"Finca", type:"stay",
+   day:"6 – 13 czerwca · Faza 1", title:"Finca · Campanet", sub:"Wspólny dom z rodziną przyjaciół. Bez sztywnych godzin — lista pod rękę.",
+   base:{name:"Finca Can Puput", sub:"Campanet · rezerwacja Holidu", rows:[
+     ["Przyjazd","6 cze · 15:00 – 20:00"],["Wyjazd","13 cze · do 10:00"],["Goście","3 dorosłych + 3 dzieci"],["Auto","Toyota Proace (7 os.)"]]},
+   poi:[
+     {n:"Coves de Campanet", r:4.5, d:"5 min", note:"Jaskinie tuż obok bazy — spokojnie, własnym tempem, bez tłumów. Świetne dla dzieci. Czynne 10–17.", q:"Coves de Campanet"},
+     {n:"Fonts Ufanes", r:4.7, d:"6 min", note:"Cienisty leśny spacer, łatwy z dziećmi i wózkiem. Zjawisko wypływającej wody zwykle dopiero po ulewach — w czerwcu raczej sucho, ale las i tak piękny.", q:"Fonts Ufanes Campanet"},
+     {n:"Pollença — starówka", r:4.4, d:"~20 min", note:"Most Rzymski, schody Calvari (365 stopni z widokiem), darmowe Museu de Pollença, klimatyczne uliczki i kawiarnie.", q:"Pollença old town Mallorca"},
+     {n:"Mirador de Gorg Blau", r:4.6, d:"~35 min", note:"Turkusowe górskie jezioro i widokowa droga przez Serra de Tramuntana. Po drodze często kozy. Genialne na zdjęcia.", q:"Mirador de Gorg Blau Mallorca"},
+     {n:"Parc Natural de s'Albufera", r:4.4, d:"~20 min", note:"Mokradła z flamingami, szerokie ścieżki i ukryte obserwatoria ptaków. Wstęp darmowy, rodzinnie. Woda, czapka, SPF.", q:"Parc Natural de s'Albufera Mallorca"},
+     {n:"Mediterranean Wildlife Foundation", r:4.8, d:"~8 min", note:"Sępy i orły z bliska — edukacyjne i robi wrażenie na dzieciach.", shut:"tylko wt i pt, 10–13", q:"Mediterranean Wildlife Foundation Campanet"}
+   ],
+   eat:[
+     {n:"Bacán Pizzas de Autor", r:4.8, eur:"€", note:"Autorska pizza na placu w Campanet, focaccia lub cienkie ciasto, świetna atmosfera wieczorem. Hit na rodzinną kolację.", shut:"pon nieczynne", q:"Bacán Pizzas de Autor Campanet"},
+     {n:"Bar Es Club", r:4.4, eur:"€", note:"Lokalny bar na Plaça Major z widokiem na kościół. Słynna paella — zamów dzień wcześniej. Tanio i swojsko.", q:"Bar Es Club Campanet"},
+     {n:"Ses Coves Café & Grill", r:4.1, eur:"€€€", note:"Grill na żywym ogniu przy jaskiniach — dojrzewane mięsa, ryby, bajeczne widoki. Na specjalny wieczór, rezerwacja.", q:"Ses Coves Cafè Grill Campanet"},
+     {n:"Es Mirador de Monnaber", r:4.6, eur:"€€", note:"Restauracja przy hotelu-finca z tarasem widokowym. Wieczorem bywa tylko dla gości hotelu — zadzwoń i potwierdź.", q:"Es mirador de Monnaber Campanet"}
+   ],
+   bike:[
+     {n:"Ultimate Bike Hire", r:4.7, d:"dowóz do finca", note:"Dowożą i odbierają rowery spod noclegu w okolicy Pollençy/Campanet — idealne przy fince na uboczu. Trekkingi i e-bike.", phone:"+44 7984 128594", q:"Ultimate Bike Hire Mallorca Pollença", web:"Ultimate Bike Hire Mallorca"},
+     {n:"Mallorca Bike Hire", r:4.8, d:"Port de Pollença · dowóz", note:"E-bike i trekkingi z dowozem pod nocleg, świetne opinie. Dobierają rozmiar i podpowiadają trasy.", phone:"+44 7460 279744", q:"Mallorca Bike Hire Port de Pollença", web:"Mallorca Bike Hire Pollensa"},
+     {n:"Clips Mallorca Bikes", r:4.8, d:"Port de Pollença", note:"E-bike dla mniej wprawnych i lekkie trekkingi — rezerwacja mailem, odbiór/zwrot przy hotelu.", phone:"+31 85 303 2829", q:"Clips Mallorca Bikes Port de Pollença", web:"Clips Mallorca Bikes Pollensa"},
+     {n:"Bike Per Tots (Inca)", r:4.8, d:"~15 min", note:"Najbliższy solidny sklep i serwis, przy trasie do finca. Błyskawiczne naprawy, bardzo miła obsługa.", phone:"+34 671 62 98 50", q:"Bike Per Tots Inca", web:"Bike Per Tots Inca Mallorca"}
+   ],
+   trips:[
+     {n:"Sa Calobra + Torrent de Pareis", r:null, d:"~45 min", note:"Kultowa serpentynowa droga (pętla Nus de sa Corbata), jaskinia wchodząca w morze i kanion wodospadowy. Jedno z najbardziej spektakularnych miejsc wyspy. Połącz z Lluc w jedną trasę dzienną.", warn:"Jedź wcześnie rano — po 11:00 parking zatłoczony. Parking przyjmuje gotówkę.", q:"Torrent de Pareis Sa Calobra Mallorca", pod:`Czy słyszysz to? Ten cichy szum, który narasta z każdym zakrętem? To dźwięk jednej z najbardziej szalonych dróg, jakie człowiek odważył się zbudować. Jedziemy do Sa Calobra — maleńkiej zatoki u stóp gór Tramuntany, do której przez wieki dało się dotrzeć wyłącznie łodzią albo na grzbiecie muła.
+
+Wszystko zmienił jeden człowiek: inżynier Antonio Parietti Coll. Na początku lat trzydziestych dwudziestego wieku dostał zadanie pozornie niewykonalne — zejść drogą z przełęczy Coll dels Reis, z wysokości ponad sześciuset metrów, w dół do samego morza, po zboczu tak stromym, że inni machali ręką: nie da się. Parietti spojrzał na górę inaczej. Zamiast walczyć z terenem, postanowił z nim zatańczyć. Zaprojektował zjazd tak, by droga sama się obniżała łagodnymi pętlami na przestrzeni kilkunastu kilometrów. A w jednym miejscu wykonał coś, co przeszło do legendy: zawiązał drogę w węzeł. Nus de sa Corbata — „węzeł krawata". Asfalt przechodzi pod własnym wiaduktem, zawracając o pełne trzysta sześćdziesiąt stopni. Drotę ukończono około tysiąc dziewięćset trzydziestego drugiego roku, i od razu stała się sławna. Dziś to jeden z najsłynniejszych odcinków dla kolarzy na świecie — zawodowcy pokonują tę wspinaczkę jako legendarny test nóg, a w sezonie miniesz ich dziesiątki, sunących pod górę w kolorowych koszulkach.
+
+Ciekawostka, o której Parietti zapewne wiedział: ten sam człowiek zaprojektował również drogę na Cap de Formentor. Dwie najbardziej spektakularne szosy wyspy wyszły spod ręki jednego inżyniera, który traktował górę nie jak przeszkodę, ale jak materiał do rzeźbienia.
+
+Ale Sa Calobra to nie tylko droga. Na dole czeka coś jeszcze bardziej niezwykłego. Z portu prowadzi krótki tunel wykuty w skale, a kiedy z niego wyjdziesz, staniesz u ujścia Torrent de Pareis. Sama nazwa znaczy „potok bliźniaków" — bo w głębi gór łączą się tu dwa strumienie, z Lluc i z Gorg Blau, by jako jeden przebić się do morza. Efektem są jedne z największych wąwozów całego basenu Morza Śródziemnego. Ściany wznoszą się na blisko dwieście metrów, a w najwęższym miejscu zbliżają się do siebie na zaledwie kilka metrów, tak że niebo zwęża się do wąskiej szczeliny. W dwa tysiące trzecim roku kanion uznano za pomnik przyrody. Wejdź w jego głąb, połóż dłoń na chłodnym kamieniu i posłuchaj ciszy — to miejsce ma w sobie coś z katedry, której nikt nie zbudował.
+
+Raz w roku, na początku lipca, dzieje się tu rzecz osobliwa. W gardzieli kanionu, bez mikrofonów i głośników, od tysiąc dziewięćset sześćdziesiątego czwartego roku zbierają się chóry. Śpiewają a cappella, a skały oddają każdy dźwięk — naturalna akustyka, jakiej nie zaprojektuje żaden architekt. Ludzie siedzą na kamieniach i słuchają, jak głosy odbijają się od ścian pamiętających epokę, gdy człowiek jeszcze tu nie dotarł.
+
+Słowo ostrzeżenia, jeśli kusi cię przejście całego wąwozu od góry, od Escorki w dół: to poważna, kilkugodzinna wyprawa ze wspinaczką po głazach, możliwa wyłącznie w suchej porze. Po deszczu kanion zamienia się w pułapkę — zdarzały się tu tragiczne w skutkach gwałtowne przybory wody. Z dziećmi trzymaj się dolnego odcinka od strony zatoki, krótkiego i bezpiecznego.
+
+Praktyczna rada, którą zapamiętaj: bądź tu wcześnie. Naprawdę wcześnie. Po jedenastej autokary wypełniają parking, a magia ustępuje tłumowi. Przyjedź o poranku, gdy światło jest jeszcze miękkie, kanion pusty, a woda w zatoce ma kolor pomiędzy szmaragdem a turkusem. Zabierz gotówkę na parking, bo bywa z tym różnie, a obsługa nie zawsze przyjmuje karty.
+
+Wracając w górę tą samą drogą, pomyśl o Parittim. O człowieku, który spojrzał na niemożliwe i powiedział: a jednak. Każdy z tych zakrętów to jego podpis. Sa Calobra to nie tylko cel — to droga, która sama w sobie jest opowieścią.`},
+     {n:"Cap de Formentor", r:null, d:"~50 min", note:"Latarnia na klifach 200 m nad morzem — widok zapiera dech. Po drodze Playa de Formentor (piasek i sosny). Koniec drogi Majorki.", warn:"Latem (maj–paź) droga częściowo zamknięta dla aut. Sprawdź aktualnie: dojeżdżasz busem z plaży lub Barcares.", q:"Cap de Formentor lighthouse Mallorca", pod:`Jesteśmy na samym końcu świata. A przynajmniej na końcu Majorki. Przed nami Cap de Formentor — ostatni skrawek lądu, który wbija się w morze jak dziób okrętu, smagany wiatrem z dwóch stron naraz. Miejscowi mawiają, że to miejsce, gdzie spotykają się wiatry. I kiedy tu staniesz, uwierzysz w to bez wahania.
+
+Droga, którą dojeżdżamy, to znów dzieło inżyniera Antonia Parittiego — tego samego, który zawiązał w węzeł szosę do Sa Calobry. Tutaj poprowadził asfalt wzdłuż krawędzi klifów, nad przepaściami spadającymi prosto do wody; ukończono ją w latach trzydziestych. Po drodze koniecznie zatrzymaj się przy punkcie widokowym Es Colomer — patrzysz stąd na samotną skałę sterczącą z morza jak strażnik i na zatoki tnące wybrzeże. Tuż obok, na wzgórzu, stoi Talaia d'Albercutx — kamienna wieża strażnicza z szesnastego wieku. Wznoszono takie wieże wzdłuż całego wybrzeża, by ostrzegać przed tym, co przez stulecia było prawdziwą zmorą wyspy: przed korsarzami z Afryki Północnej, którzy napadali, palili wsie i uprowadzali ludzi w niewolę. Z Albercutx, gdy dostrzeżono żagle piratów, zapalano ogień, a sygnał biegł od wieży do wieży aż w głąb lądu.
+
+Na samym cyplu, na wysokości około dwustu dziesięciu metrów nad falami, stoi latarnia morska. Zbudował ją inżynier Emili Pou, a światło zapłonęło w tysiąc osiemset sześćdziesiątym trzecim roku. Pomyśl, czego to wymagało: każdy kamień, każdą belkę, a potem oliwę do lampy — bo pierwotnie latarnia świeciła płomieniem z oliwy z oliwek — trzeba było dostarczyć morzem i wciągnąć po stromiznie, zanim w ogóle powstała droga. Latarnik mieszkał tu samotnie przez długie tygodnie, odcięty od świata, mając za towarzystwo tylko wiatr i światło, które co noc wysyłał w ciemność.
+
+Ale Formentor kryje też historię z zupełnie innej epoki. W tysiąc dziewięćset dwudziestym dziewiątym roku argentyński poeta i marzyciel Adan Diehl wybudował tu, wśród sosen nad ukrytą plażą, luksusowy Hotel Formentor. Był to akt szaleństwa — wielki, elegancki hotel na krańcu wyspy, do której ledwo dało się dojechać. A jednak zadziałało. Przez dekady ściągali tu najwięksi: Winston Churchill, który malował tutejsze pejzaże, gwiazdy kina jak Grace Kelly, arystokraci i dyplomaci. A w tysiąc dziewięćset sześćdziesiątym pierwszym roku hotel zapisał się w historii literatury: zorganizowano tu spotkania pisarzy i ustanowiono nagrodę Prix Formentor. Jej pierwszą edycję podzielili między siebie Jorge Luis Borges i Samuel Beckett — dwa nazwiska, które dziś znajdziesz w każdym podręczniku. Mówiono, że na tarasie tego hotelu rodziły się idee, o których świat dowiadywał się dopiero po latach.
+
+Kiedy będziesz tu stał, na wietrznym cyplu, spójrz wstecz na wyspę. Zobaczysz całą Serra de Tramuntana ciągnącą się ku horyzontowi, błękit zatoki Pollença i bezkres otwartego morza. Plaża Formentor, ukryta poniżej wśród sosen, uchodzi za jedną z najpiękniejszych na wyspie — drobny piasek i woda w odcieniach, których nie da się nazwać.
+
+Jedna ważna uwaga praktyczna: latem, mniej więcej od maja do października, droga na sam cypel bywa zamknięta dla prywatnych aut — wprowadzono to po latach, gdy korki na wąskiej szosie zamieniały wyprawę w mękę. Sprawdź aktualne zasady przed wyjazdem; może się okazać, że ostatni odcinek pokonasz autobusem wahadłowym z plaży albo z Port de Pollença. Nie psuje to przygody — przeciwnie, jedziesz wtedy bez stresu o parking, patrząc tylko w okno.
+
+Przyjedź wcześnie rano albo pod wieczór, w złotej godzinie, gdy klify płoną pomarańczem, a tłumy znikają. Wtedy Formentor pokazuje swoją prawdziwą twarz — dziką, samotną i piękną. Stoisz na końcu Majorki, a przed tobą już tylko wiatr, woda i horyzont.`},
+     {n:"Sóller + Port de Sóller", r:4.3, d:"~55 min", note:"Miasteczko wśród drzew pomarańczowych z klimatycznym tramwajem do portu. Targ, bary, pływanie. Z dziećmi idealne — tram to atrakcja sama w sobie.", q:"Soller old town Mallorca", pod:`Za chwilę wjedziemy do doliny, którą miejscowi przez wieki nazywali doliną złota. Nie chodziło o kruszec, lecz o coś, co pachniało słodko i rosło na drzewach — o pomarańcze i cytryny. Witaj w Sóller.
+
+Sóller leży w kotlinie otoczonej z każdej strony górami Tramuntany. Przez stulecia te góry były jednocześnie błogosławieństwem i przekleństwem. Tworzyły idealny mikroklimat dla cytrusów — ale odcinały dolinę od reszty wyspy. Droga do Palmy wiodła przez przełęcz Coll de Sóller, liczącą podobno około pięćdziesięciu siedmiu zakrętów; podróż trwała większą część dnia. Dlatego mieszkańcy spoglądali nie w głąb lądu, lecz ku morzu. Ładowali pomarańcze na statki i wysyłali je do Francji, głównie do Marsylii.
+
+I tu zaczyna się najciekawsze. Handel z Francją uczynił Sóller bogatym i — co rzadkie na wyspie — światowym. Wielu mieszkańców wyemigrowało do Francji, dorobiło się i wróciło z pieniędzmi, ideami oraz nowym smakiem. Rozejrzyj się po głównym placu wokół wielkiego kościoła Sant Bartomeu. Jego falującą, kamienną fasadę przeprojektował na początku dwudziestego wieku Joan Rubió i Bellver — uczeń i współpracownik samego Antoniego Gaudiego. Obok stoi dawny bank o równie secesyjnej fasadzie, a nieopodal kamienica Can Prunera, dziś muzeum sztuki modernistycznej. Dolina zagubiona w górach nagle wyglądała jak fragment Barcelony.
+
+Za pieniądze z pomarańczy mieszkańcy rozwiązali wreszcie problem odcięcia. W tysiąc dziewięćset dwunastym roku otworzyli kolej — wąskotorowy pociąg, który przebija się przez serce gór trzynastoma tunelami kutymi w skale, w tym jednym długim na blisko trzy kilometry. Te same drewniane wagony, wypolerowane mosiądze i skórzane siedzenia jeżdżą do dziś, a trasa do Palmy liczy około dwudziestu siedmiu kilometrów. Rok później, w tysiąc dziewięćset trzynastym, uruchomiono tramwaj łączący miasteczko z portem. Wsiądź, jeśli masz czas — to podróż w przeszłość. Zabytkowy tramwaj kołysze się przez gaje pomarańczowe i wąskie uliczki, dzwoniąc jak sto lat temu, a dla dzieci sama jazda bywa większą atrakcją niż niejedna plaża.
+
+A teraz historia, której nie znajdziesz na pocztówkach. W tysiąc pięćset sześćdziesiątym pierwszym roku na Sóller spadła flota berberyjskich korsarzy — setki uzbrojonych napastników wylądowały, by złupić dolinę. Mieszkańcy stawili opór i odparli atak, a w pamięci wyspy zapisał się zwłaszcza pewien epizod: dwie kobiety z domu Can Tamany, tak zwane Valentes Dones, „dzielne niewiasty", miały własnoręcznie rozprawić się z grupą napastników. Do dziś co roku w maju Sóller odgrywa tę bitwę podczas hucznego święta Es Firó — mieszkańcy przebierają się za Maurów i chrześcijan, a uliczki wypełnia inscenizacja walki, dym i okrzyki. To jedno z najbarwniejszych świąt na całej wyspie.
+
+Port de Sóller to z kolei niemal idealnie okrągła zatoka, osłonięta przed wiatrem ramionami lądu. Kiedyś chroniła rybaków i kupieckie statki, dziś kusi spacerem po promenadzie, kawą z widokiem na łodzie i kąpielą w spokojnej wodzie.
+
+Ciekawostka, o której mało kto pamięta: bezpośredni tunel drogowy łączący Sóller z resztą wyspy otwarto dopiero w tysiąc dziewięćset dziewięćdziesiątym siódmym roku. Przez prawie cały dwudziesty wiek najszybszą drogą do świata był ten pomarańczowy pociąg. Pomyśl o tym, jadąc — przez dziesięciolecia stalowe szyny znaczyły dla tej doliny więcej niż jakakolwiek szosa.
+
+Sóller uczy cierpliwości. Nie spiesz się. Usiądź na placu, zamów świeżo wyciskany sok z tutejszych pomarańczy i popatrz, jak życie toczy się tak, jak toczyło od pokoleń — w cieniu gór, w zapachu cytrusów, w rytmie dzwonka tramwaju.`},
+     {n:"Santuari de Lluc", r:4.4, d:"~25 min", note:"Serce Serra de Tramuntana — klasztor, fontanny, hike na skały. Dobry punkt startowy na Sa Calobra tego samego dnia. Wejście darmowe.", q:"Santuari de Lluc Mallorca", pod:`Jedziemy w serce gór. Tam, gdzie kończą się wioski, a zaczyna cisza, na wysokości ponad pięciuset metrów leży najświętsze miejsce na całej Majorce — Santuari de Lluc. Klasztor, do którego od ośmiu wieków pielgrzymują wyspiarze. Ale zanim wejdziemy, opowiem ci, jak to się zaczęło. Bo zaczęło się od chłopca i od tajemnicy.
+
+Legenda mówi, że było to w trzynastym wieku, niedługo po tym, jak wojska Jakuba Pierwszego Zdobywcy odbiły wyspę z rąk muzułmanów. Pewien młody pasterz — w przekazach maurski chłopiec, świeżo ochrzczony, imieniem Lluc — wypasał owce wśród tych skał. Pewnego dnia dostrzegł wśród kamieni małą, ciemną figurkę Matki Boskiej. Zaniósł ją do kościoła, lecz nazajutrz figura w niewytłumaczalny sposób wróciła w to samo miejsce w górach. I znów. I jeszcze raz. Ludzie odczytali to jako znak: Madonna chce zostać tutaj. I tak, na tym odludnym zboczu, narodziło się sanktuarium, którym od stuleci opiekują się misjonarze Najświętszych Serc.
+
+Figurkę — niewielką, o ściemniałym z wiekiem obliczu — nazwano czule La Moreneta, „Śniada". Jest patronką całej Majorki, a do dziś dziesiątki tysięcy ludzi rocznie pokonują górską drogę, by stanąć przed nią choć na chwilę. Najsłynniejsza z tych pielgrzymek to nocny marsz „Des Güell a Lluc a peu" — od tysiąc dziewięćset siedemdziesiątego czwartego roku, każdego sierpnia, tysiące osób wychodzi nocą z przedmieść Palmy i idzie pieszo blisko pięćdziesiąt kilometrów, by o świcie dotrzeć tutaj. To jedno z największych zbiorowych przeżyć wyspy.
+
+Jest jeszcze jeden dźwięk, dla którego warto przyjechać. To głosy chłopięcego chóru — Els Blauets, „Błękitni", nazwani od koloru swoich sutann. Chór założono w tysiąc pięćset trzydziestym pierwszym roku, co czyni go jednym z najstarszych w Europie. Gdy mali chórzyści zaczynają śpiewać w bazylice, zwykle przed południem i ponownie wieczorem, dźwięk unosi się pod sklepieniem i wypełnia kamienne wnętrze tak, że ciarki przechodzą po plecach. Jeśli traficie na godzinę występu, zatrzymaj się i posłuchaj.
+
+Zwróć też uwagę na detal, który łączy Lluc z największym architektem Katalonii. Na początku dwudziestego wieku Antoni Gaudí pracował przy renowacji katedry w Palmie i przy tej okazji jego krąg odcisnął ślad również tutaj: wzdłuż drogi krzyżowej i ścieżki różańcowej wiodącej na wzgórze ustawiono kamienne monumenty zaprojektowane w duchu jego szkoły. Wejdź na ten szlak — z każdym stopniem rozszerza się widok na góry ze wszystkich stron.
+
+Wokół klasztoru rozciągają się ogrody, ogród botaniczny z roślinami Tramuntany, muzeum i szlaki w głąb gór. Lluc to nie jest miejsce, przez które się przejeżdża. To miejsce, w którym się oddycha. Usiądź na murku, posłuchaj wiatru w sosnach i poczuj, dlaczego przez osiemset lat ludzie wspinali się tu, by znaleźć spokój.
+
+Praktycznie: wejście do klasztoru i na teren jest bezpłatne, a samo miejsce świetnie nadaje się jako punkt wypadowy — stąd masz już naprawdę blisko do Sa Calobry, więc da się połączyć jedno z drugim w jeden mocny dzień w górach. Można tu nawet przenocować w dawnych celach.
+
+Kiedy będziesz odjeżdżał, obejrzyj się jeszcze raz. Mały pasterz, ciemna figurka, ośmiowieczna pieśń chłopców pod kamiennym sklepieniem. Czasem największe historie zaczynają się od najdrobniejszych rzeczy — od czegoś, co ktoś dostrzegł wśród kamieni i nie potrafił o tym zapomnieć.`},
+     {n:"Valle de Bóquer", r:4.7, d:"~25 min", gem:true, note:"Dolina wśród skał prowadząca do dzikiej plaży — łatwy spacer z dziećmi, kozy na szlaku, sępy krążące nad głową. Parking darmowy w Port de Pollença.", q:"Valle de Boquer Pollenca Mallorca", pod:`Teraz zabiorę cię w miejsce, które omijają autokary, a które ornitolodzy z całej Europy wymieniają niemal szeptem, jak skarb. Valle de Bóquer — Dolina Bóquer. Leży tuż za Port de Pollença, a mimo to większość turystów przejeżdża obok, nie wiedząc, co traci.
+
+Wejście do doliny prowadzi przez bramę starej, ufortyfikowanej posiadłości — possessió Bóquer, której początki sięgają trzynastego wieku, czasów tuż po chrześcijańskim podboju wyspy. Grube kamienne mury budowano tu nie dla ozdoby, lecz dla przetrwania — w epoce, gdy wybrzeże nękali korsarze. Mijasz bramę i nagle świat się zmienia. Z dwóch stron wznoszą się surowe grzbiety: po jednej stronie ciągnie się Serra del Cavall Bernat, postrzępiona grań przypominająca grzbiet smoka, której skalne iglice rysują się ostro na tle nieba. Między nimi biegnie kamienista ścieżka, a ty wchodzisz w dolinę, która wygląda, jakby czas się tu zatrzymał.
+
+To miejsce ma dwie dusze. Pierwsza należy do ptaków. Dolina Bóquer leży na trasie wędrówek tysięcy ptaków przelatujących między Europą a Afryką, dlatego to jeden z najsłynniejszych punktów obserwacji w całym basenie Morza Śródziemnego. Z cierpliwością i odrobiną szczęścia zobaczysz tu modrego nadskalnika o stalowym upierzeniu, drapieżne sokoły — w tym rzadkiego sokoła Eleonory, który gniazduje na okolicznych klifach — orła południowego krążącego wysoko, a wiosną i jesienią całe stada drobnych ptaków śpiewających, zatrzymujących się tu w drodze. Zabierz lornetkę, jeśli masz; zamienia spacer w polowanie, tyle że na obrazy. Nie przypadkiem okolice Pollençy od dawna przyciągały też artystów — w pobliskim Port de Pollença osiadł na przykład wybitny malarz Hermen Anglada-Camarasa, oczarowany tutejszym światłem.
+
+Druga dusza doliny to kozy. Półdzikie, zuchwałe, władające tym terenem od pokoleń. Strzeż jedzenia — potrafią podejść bezceremonialnie i poczęstować się twoją kanapką, patrząc ci prosto w oczy. Dzieci je uwielbiają.
+
+Ścieżka jest łagodna i nadaje się nawet dla młodszych nóg. Po jakiejś godzinie marszu dolina otwiera się na morze, a ty docierasz do Cala Bóquer — dzikiej, kamienistej zatoczki, do której nie prowadzi żadna droga. Nie ma tu barów, leżaków ani parasoli. Jest tylko woda, kamienie, cisza i poczucie, że odkryłeś miejsce wyłącznie dla siebie. Woda bywa chłodna, ale krystaliczna; weź buty do wody, bo dno jest kamieniste.
+
+Kilka praktycznych słów: parking przy wejściu jest darmowy, ale niewielki, więc przyjedź rano. Załóż wygodne buty, weź wodę i czapkę, bo na ścieżce prawie nie ma cienia, a w południe potrafi mocno przygrzać. Idź wolno, zatrzymuj się, nasłuchuj — Bóquer nagradza cierpliwych.
+
+Mówi się, że na Majorce wszystko już odkryto i opisano. A potem wchodzisz w Dolinę Bóquer, słyszysz tylko wiatr, krzyk sokoła gdzieś wysoko i stukot kozich kopyt na kamieniach — i rozumiesz, że wyspa wciąż ma swoje sekretne zakątki. Trzeba tylko zostawić auto i pójść kawałek dalej, niż idą inni.`},
+     {n:"Puig de Maria (Santuari)", r:4.6, d:"~20 min", gem:true, note:"30-min wejście pieszo na wzgórze 317 m, panorama 360° nad Pollençą i zatoką. Barak kawowy na szczycie. Darmowe, i prawie nikt tu nie idzie.", q:"Mare de Déu del Puig Pollença Mallorca", pod:`Spójrz na wzgórze górujące nad Pollençą. Na samym szczycie, ponad trzysta metrów nad miastem, widać kamienne mury — to Puig de Maria, jedno z tych miejsc, które większość turystów ogląda tylko z dołu, nie wiedząc, jaka historia kryje się na górze.
+
+Sanktuarium ma ponad sześćset lat, a powód jego powstania jest poruszający. W połowie czternastego wieku przez całą Europę przetoczyła się czarna śmierć — dżuma, która w ciągu kilku lat zmiotła ogromną część ludności kontynentu. Ludzie, przerażeni i bezradni wobec zarazy, której nie rozumieli, szukali ratunku tam, gdzie tylko mogli. Wierzono, że wysoko w górach, z dala od skażonego powietrza nizin, można znaleźć schronienie i łaskę. Tak właśnie na tym szczycie powstała najpierw kaplica, a pod koniec stulecia osiadły tu zakonnice, które przez kolejne wieki żyły w odosobnieniu na swoim kamiennym tronie. Z czasem miejscem opiekowali się także pustelnicy. Budowla ma charakter na wpół obronny — gruby mur i przysadzista wieża miały chronić nie tylko przed wiatrem, ale i przed napastnikami, bo z tej wysokości widać było każdego, kto zbliżał się od strony morza.
+
+Żeby tam dotrzeć, trzeba zostawić auto u podnóża i wejść pieszo. Spacer zajmuje jakieś dwadzieścia, trzydzieści minut. Z początku idzie się asfaltową drogą, potem nierównym, brukowanym szlakiem, który pod koniec robi się stromy — wtedy nogi przypominają, że to jednak wspinaczka. Ale każdy krok jest tego wart.
+
+Na górze czeka nagroda, jakiej nie spodziewałbyś się po tak skromnym miejscu. Panorama trzysta sześćdziesiąt stopni: poniżej miasteczko Pollença z gęstwiną dachów i słynnymi schodami Calvari, dalej dwie wielkie zatoki — Pollença i Alcúdia — a na horyzoncie góry Tramuntany i błękit otwartego morza. Przy dobrej widoczności obejmujesz wzrokiem prawie cały północny kraniec wyspy naraz. Wieje tu wiatr, słychać tylko jego szum i czasem dzwon.
+
+A teraz coś, o czym mało kto wie: w dawnych celach zakonnic można dziś przenocować. Warunki są surowe i proste — kamienne ściany, wąskie łóżko, żadnych luksusów, prosty posiłek w refektarzu — ale wyobraź sobie, że budzisz się o świcie na szczycie góry, wychodzisz przed klasztor i widzisz, jak słońce wstaje nad zatoką, a całe miasto wciąż śpi w dole. Mało które przeżycie na wyspie z tym konkuruje. Na górze działa też skromny bar, gdzie odsapniesz przy kawie, zanim ruszysz w dół.
+
+Praktycznie: załóż wygodne buty i weź wodę, zwłaszcza w upalny dzień, bo cienia po drodze niewiele. Punkt startowy znajdziesz tuż przy obwodnicy Pollençy; parking u podnóża bywa ciasny, więc lepiej rano.
+
+Puig de Maria to dowód, że na Majorce najlepsze widoki rzadko przychodzą za darmo — trzeba po nie trochę podejść. Ale gdy staniesz na górze, z wiatrem we włosach i całą północą wyspy u stóp, zrozumiesz, dlaczego ludzie wspinali się tu od sześciu wieków: w czasach zarazy po nadzieję, a dziś po coś, czego w dolinie coraz trudniej znaleźć — po ciszę.`},
+     {n:"Ermita de Betlem", r:4.5, d:"~50 min", gem:true, note:"Odległy klasztor na klifach nad morzem — 8 km wąską drogą przez las. Absolutna cisza, kaplica jak wyjęta z innej epoki. Jedno z najbardziej tajemniczych miejsc wyspy.", q:"Ermita de Betlem Artà Mallorca", pod:`To będzie wyprawa dla tych, którzy szukają ciszy. Prawdziwej ciszy. Jedziemy do Ermita de Betlem — pustelni ukrytej wysoko w górach półwyspu Artà, w paśmie Serra de Llevant, jednym z najbardziej odludnych i tajemniczych zakątków całej Majorki.
+
+Już sama droga jest częścią przygody. Z miasteczka Artà wspina się wąska, kręta szosa — około ośmiu kilometrów serpentyn wśród skał i karłowatego lasu. Mijasz po drodze widoki, od których zapiera dech, a im wyżej, tym ciszej i pusto. W pewnym momencie cywilizacja zostaje gdzieś daleko w dole, a ty masz wrażenie, że wjeżdżasz do innego świata.
+
+Pustelnię założono w tysiąc osiemset piątym roku — grupa pustelników, duchowych spadkobierców tradycji świętych Pawła i Antoniego, szukała miejsca jak najdalej od zgiełku. I trudno o lepszy wybór. Zakonnicy żyli tu w skrajnej prostocie: uprawiali maleńkie tarasowe poletka wydarte górze, hodowali kilka zwierząt, czerpali wodę ze źródła zwanego Font de s'Ermita, modlili się i milczeli. Ich świat kończył się na tych murach i na widoku rozciągającym się aż po zatokę Alcúdii.
+
+Nazwa Betlem — Betlejem — nie jest przypadkowa. W kaplicy kryje się jej serce: scena narodzenia umieszczona w czymś na kształt groty, jakby fragment betlejemskiej jaskini przeniesiony tu, w góry Artà. Wejdź do środka, gdy nikogo nie ma. Półmrok, chłód kamienia, zapach świec. Usiądź na ławce i posłuchaj. Usłyszysz tylko własny oddech i czasem wiatr ocierający się o mury. Pielgrzymi, którzy tu docierają, mówią często to samo: że poczuli się bliżej czegoś, czego nie potrafią nazwać.
+
+Warto wiedzieć, że pustelnia jest też bramą do dzikich zakątków wybrzeża. Z okolicy prowadzą szlaki w stronę ukrytych plaż półwyspu — jak kamienista Platja des Verger czy zatoczka Es Caló — do których nie dotrzesz autem, tylko pieszo, przez las i skały. To jeden z ostatnich naprawdę nietkniętych fragmentów wyspy, częściowo objęty ochroną jako teren przyrodniczy.
+
+Wokół samej pustelni jest skromnie i — przyznajmy szczerze — miejscami zaniedbane. Część terenu bywa zamknięta, fontanna ze statuą Marii nie zawsze w najlepszym stanie. Ale właśnie ta surowość, ten brak turystycznego wygładzenia, sprawiają, że Betlem jest prawdziwe. To nie atrakcja przygotowana pod bilety. To miejsce, które żyje własnym, powolnym rytmem od ponad dwustu lat.
+
+Praktycznie: droga jest wąska i wymaga ostrożnej jazdy, zwłaszcza gdy z naprzeciwka nadjeżdża inne auto — bywa, że ktoś musi się cofnąć do mijanki, więc jedź spokojnie i bez pośpiechu. Pustelnia bywa otwarta w ciągu dnia, ale warto sprawdzić godziny, bo potrafią być kapryśne. Zabierz wodę i wygodne buty, jeśli chcesz przejść się okolicznymi ścieżkami — widoki wynagrodzą trud.
+
+Kiedy będziesz wracał tą krętą drogą w dół, zatrzymaj się na chwilę przy jednym z zakrętów i obejrzyj za siebie. Mały biały budynek przyklejony do góry, otoczony bezkresem skał i nieba. Pomyśl o ludziach, którzy wybrali to miejsce na całe życie — z dala od wszystkiego, blisko jedynie ciszy. W świecie, który nigdy nie milczy, Ermita de Betlem oferuje rzecz dziś bezcenną: spokój, którego nie da się kupić.`},
+     {n:"Ses Païsses (Artà)", r:4.2, d:"~40 min", note:"Talajotyczne ruiny z epoki brązu (3000 lat), €4 bilet, cień drzew. Wnikliwa dla dzieci — forteca z cyklopowych głazów. Niedziela: zamknięte.", shut:"niedz zamknięte", q:"Ses Païsses Artà Mallorca", pod:`Stoimy przed murem, który zbudowano około trzech tysięcy lat temu. Trzy tysiące. Zanim powstał Rzym, zanim narodziła się większość tego, co znamy z podręczników, ktoś tutaj, na tej wyspie, układał te potężne głazy jeden na drugim. Witaj w Ses Païsses — jednym z najlepiej zachowanych świadectw tajemniczej kultury talajockiej.
+
+Tuż pod miasteczkiem Artà, w cieniu starego dębowego lasu, kryje się osada otoczona murem z kamieni tak wielkich, że trudno uwierzyć, by poruszyli je ludzie bez maszyn. Takie konstrukcje nazywa się cyklopowymi — bo dawni Grecy, widząc podobne mury, byli przekonani, że wznieść je mogli tylko jednoocy olbrzymi, cyklopi. Przejdź przez wejście — monumentalny portal z trzech ogromnych, monolitycznych płyt, jednych z najpotężniejszych tego typu na całych Balearach — i znajdziesz się w sercu osady sprzed epoki.
+
+Kim byli ci ludzie? Tu zaczyna się zagadka. Kultura talajocka rozkwitła na Majorce i Minorce w epoce brązu, mniej więcej od trzynastego wieku przed naszą erą, a nazwę bierze od charakterystycznych kamiennych wież — talajotów — których przeznaczenia do dziś nie jesteśmy pewni. Były wieżami obronnymi? Punktami obserwacyjnymi? Miejscami zgromadzeń, kultu, a może grobowcami wodzów? Archeolodzy spierają się od dziesięcioleci. W centrum Ses Païsses stoi właśnie taki talajot, a wokół niego resztki domostw i pomieszczeń, w których toczyło się codzienne życie: mielono zboże, przechowywano zapasy, chroniono się przed wrogiem. Systematyczne badania prowadził tu od końca lat pięćdziesiątych dwudziestego wieku włoski archeolog Giovanni Lilliu, jeden z największych znawców prehistorii śródziemnomorskiej.
+
+A teraz ciekawostka, która zmienia spojrzenie na tę wyspę. Mieszkańcy talajockich Balearów słynęli w całym antycznym świecie z jednej umiejętności: byli mistrzami procy. Wyspiarscy procarze, zwani foners, potrafili z zabójczą celnością miotać kamienne i ołowiane pociski na ogromne odległości. Mówiono, że ćwiczyli od dzieciństwa — że matka kładła chłopcu jedzenie na gałęzi i pozwalała zjeść dopiero, gdy zdołał je strącić procą. Te umiejętności były tak cenione, że Kartagińczycy, a potem Rzymianie, najmowali balearskich procarzy jako elitarnych żołnierzy; walczyli między innymi w wojnach punickich. Według jednej z teorii sama nazwa „Baleary" wywodzi się od greckiego słowa oznaczającego „miotać", „rzucać" — a więc od procy. Stojąc tu, w tej osadzie, patrzysz na ojczyznę wojowników, których bały się antyczne armie.
+
+Najbardziej porusza jednak nie to, co wiemy, lecz to, czego nie wiemy. Ci ludzie nie zostawili pisma. Nie znamy ich języka, imion bogów, opowieści przekazywanych wieczorami przy ogniu. Zostały tylko kamienie — milczące, masywne, trwające. Połóż dłoń na murze i pomyśl: tę samą powierzchnię dotykała kiedyś ręka kogoś, kto żył trzy tysiące lat temu i patrzył na te same gwiazdy co ty. Z czasem osadę opuszczono. Dlaczego? Czy przyszli najeźdźcy, czy zmienił się klimat, czy po prostu świat poszedł dalej? Nie wiemy. Ses Païsses trwa jako pytanie bez odpowiedzi — i może właśnie dlatego tak działa na wyobraźnię.
+
+Praktycznie: bilet wstępu jest symboliczny, kilka euro, a po terenie prowadzą tablice tłumaczące, na co patrzysz. Jest sporo cienia, więc to dobra wyprawa nawet w upalny dzień. Pamiętaj tylko, że w niedzielę bywa zamknięte, a w soboty czynne tylko do południa — sprawdź godziny. Świetnie łączy się to ze zwiedzaniem samego Artà: starego miasta, fortecy-sanktuarium Sant Salvador na wzgórzu i pobliskich jaskiń.
+
+Dla dzieci to jak wejście do prawdziwej fortecy z bajki — tyle że ta jest najprawdziwsza i starsza niż wszystko, co znają. A dla ciebie? To rzadka okazja, by dotknąć czegoś naprawdę pradawnego i poczuć, jak płytka bywa nasza pamięć i jak głęboka jest cisza kamieni.`}
+   ]},
+
+  {id:"swap", ico:"🔄", lab:"Zmiana", type:"logi",
+   day:"Sobota · 13 czerwca", title:"Zmiana bazy i auta", sub:"Najgęstszy dzień — finca → lotnisko → hotel, plus zamiana aut.",
+   steps:[
+     {time:"do 10:00", title:"Wymeldowanie z finca", where:"Klucze, sprzątanie wg ustaleń gospodarza",
+      list:["Zabierzcie zakupy/rzeczy z lodówki.","Sprawdźcie basen/taras — nic nie zostaje."]},
+     {time:"13:30", title:"Zwrot Toyota Proace", where:"Record Go · lotnisko Palma (PMI)",
+      list:["Zatankuj do pełna przed zwrotem (zwykonaj zdjęcia auta i licznika).","Tu kończy się Faza 1 — od teraz jedziecie we trójkę."],
+      mapq:"Record Go Palma de Mallorca Airport"},
+     {time:"13:30 – 16:00", title:"Okno na lotnisku (~2,5 h)", where:"Lunch z dzieckiem, przepakowanie bagaży",
+      tip:"Jeśli chcesz skrócić przerwę — dopytaj Record Go, czy wydadzą Omodę wcześniej (to to samo biuro)."},
+     {time:"16:00", title:"Odbiór auta · Omoda 5 (automat)", where:"Record Go · lotnisko Palma (PMI) · 5 miejsc",
+      conf:"787193328",
+      list:["5 miejsc w zupełności wystarczy na trójkę + bagaże.","Automat — wygodniej w mieście i na serpentynach."],
+      warn:"Znów: prawo jazdy, karta kredytowa, voucher, dokument. Numer potwierdzenia obok — dotknij, by skopiować.",
+      mapq:"Record Go Palma de Mallorca Airport"},
+     {time:"~50 min", title:"Dojazd PMI → Es Baulo Petit Hotel", where:"Avenida Santa Margarita 28, Can Picafort",
+      mapq:"Es Baulo Petit Hotel Can Picafort"},
+     {time:"od 15:00", title:"Zameldowanie w hotelu", where:"Check-in 15:00 – 23:30 (dojedziecie po 16:00 — spokojnie)",
+      list:["Wieczorem spacer po promenadzie i kolacja nad morzem."]}
+   ],
+   bikeNote:{title:"Rowery w fazie 2", text:"Po przeprowadzce komplet wypożyczalni masz ok. 5 min od hotelu przy Ctra. Artà-Alcúdia. Pełna lista (z e-bike i dowozem) w zakładce 🏖️ Can Picafort.", links:[{n:"Wheels Sport", q:"Wheels Sport Can Picafort"},{n:"Velo-Plus", q:"Velo-Plus Can Picafort"}]},
+   routeNote:{title:"Przystanek w drodze na lotnisko", text:"Wymeldowanie 10:00, zwrot auta 13:30 — masz ~3,5h. Inca leży dosłownie 15 min od Campanet, prosto na trasie do PMI. Idealne na pożegnalny lunch i krótki spacer. Alternatywa: Binissalem (~20 min w bok) to miasteczko wina DO Binissalem — kilka bodeg otwartych w sobotę na degustacje.", links:[{n:"Inca centrum", q:"Inca old town Mallorca"},{n:"José L. Ferrer Bodega", q:"Bodega José Luis Ferrer Binissalem"}]}},
+
+  {id:"picafort", ico:"🏖️", lab:"Picafort", type:"stay",
+   day:"13 – 18 czerwca · Faza 2", title:"Can Picafort", sub:"We trójkę nad zatoką Alcúdii. Plaża, knajpy, spontan.",
+   base:{name:"Es Baulo Petit Hotel", sub:"Can Picafort · rezerwacja Booking", stars:4, rows:[
+     ["Przyjazd","13 cze · 15:00 – 23:30"],["Wyjazd","18 cze · do 12:00"],["Adres","Av. Santa Margarita 28, 07458"],["Auto","Omoda 5 (automat)"]]},
+   poi:[
+     {n:"Platja de Muro", r:4.7, d:"obok", note:"Długa, płytka i piaszczysta plaża — idealna dla dziecka. Spokojniejsza niż centrum, woda wchodzi łagodnie.", q:"Platja de Muro Mallorca"},
+     {n:"Parc Natural de s'Albufera", r:4.4, d:"~10 min", note:"Flamingi i ptaki, ścieżki rowerowe i spacerowe. Z hotelu naprawdę blisko — dobry poranek.", q:"Parc Natural de s'Albufera Mallorca"},
+     {n:"Alcúdia + Ruiny Pollentia", r:4.2, d:"~15 min", note:"Starówka w średniowiecznych murach + rzymskie ruiny i amfiteatr (bilet ~4 € z muzeum). Klimatyczny rynek i tapas.", q:"Ruïnes de Pollentia Alcúdia"},
+     {n:"Promenada i napis Can Picafort", r:4.7, d:"na miejscu", note:"Wieczorny spacer: napis miasta, wieża Torre d'enfilació, latarnia i rzeźby na wodzie. Świetne na zachód słońca.", q:"Cartell Can Picafort"},
+     {n:"Monkey Jet Ski Tours", r:5.0, d:"na miejscu", note:"Skutery wodne i wycieczki morskie — mocna atrakcja dla syna. Rezerwacja z wyprzedzeniem.", q:"Monkey Can Picafort Jet Ski Tours"},
+     {n:"Cala Mesquida", r:4.6, d:"~40 min", note:"Dzika, piękna plaża z wydmami na wschodzie wyspy. Wycieczka na cały dzień — przyjedź wcześnie po parking.", q:"Cala Mesquida Mallorca"}
+   ],
+   eat:[
+     {n:"Salitre", r:4.8, eur:"€€", note:"Najlepsza w mieście — tapas do dzielenia nad samym morzem, świeże ryby, ogromna sangria. Rezerwuj stolik.", shut:"śr nieczynne", q:"Salitre Can Picafort"},
+     {n:"Restaurante Mónaco", r:4.6, eur:"€€", note:"Żywiołowa, rodzinna, w centrum. Menu dla dzieci z lodami, dobra paella i grill. Wieczorem szybko się zapełnia.", shut:"wt nieczynne", q:"Restaurante Mónaco Can Picafort"},
+     {n:"El Puerto", r:4.6, eur:"€€", note:"Przy molo, z widokiem. W weekend churros na śniadanie od 8:30. Rodzinnie i smacznie.", shut:"pon nieczynne", q:"El Puerto Can Picafort"},
+     {n:"Ponderosa Beach", r:4.5, eur:"€€€", note:"Stopy w piasku na Platja de Muro — jedna z najlepszych fideuà na wyspie, paella. Rezerwacja, czynne do ~19.", q:"Ponderosa Beach Mallorca"},
+     {n:"Can Gavella", r:4.4, eur:"€€", note:"Restauracja na plaży, stolik w piasku, paella i widok na morze. Rezerwacja — w porze lunchu pełno.", q:"Can Gavella Platja de Muro"},
+     {n:"NU Mallorca", r:4.5, eur:"€€€", note:"Elegancko nad morzem — sushi, koktajle, DJ. Na wieczór we dwoje albo na specjalną okazję (drożej).", q:"NU Mallorca Playa de Muro"}
+   ],
+   bike:[
+     {n:"Wheels Sport", r:4.8, d:"~5 min", note:"Dowożą rowery pod hotel, e-MTB i trekkingi, świetne ceny. W komplecie kask i licznik, odbiór możliwy wieczór wcześniej.", phone:"+34 971 85 23 98", q:"Wheels Sport Can Picafort", web:"Wheels Sport Can Picafort bike rental"},
+     {n:"Velo-Plus Ca'n Picafort", r:4.6, d:"~5 min", note:"Rowery miejskie i trekkingowe w idealnym stanie — najlepsze na płaskie, rodzinne trasy z dzieckiem. Bardzo dobre ceny.", phone:"+34 971 54 98 36", q:"Velo-Plus Can Picafort", web:"Velo Plus Can Picafort"},
+     {n:"Huerzeler", r:4.6, d:"~4 min", note:"Duży wybór i dowóz pod hotel. W obsłudze bywa osoba mówiąca po polsku, można odebrać dzień wcześniej.", q:"Huerzeler Can Picafort", web:"Huerzeler bike rental Can Picafort"},
+     {n:"Specialized Muro Rental", r:4.4, d:"~8 min", note:"E-bike Specialized z dobrym zasięgiem — świetne na wypad do s'Albufery albo Alcúdii. Podpowiadają trasy, mały prowiant w pakiecie.", phone:"+34 971 15 00 78", q:"Specialized Mallorca Muro Rental", web:"Specialized Muro rental Playa de Muro"},
+     {n:"mallorcaambbici", r:4.7, d:"~6 min", note:"Rodzinna wypożyczalnia z dobrymi rowerami i trafnymi radami co do tras. Uczciwa cena, miła obsługa.", phone:"+34 632 48 77 21", q:"mallorcaambbici Can Picafort", web:"mallorcaambbici Can Picafort"}
+   ],
+   trips:[
+     {n:"Coves d'Artà", r:4.7, d:"~35 min", note:"Legendarne jaskinie morskie tuż nad plażą — przewodnik mówi kilkoma językami i robi show z gaszenia świateł. Jedna z najlepszych jaskiń Balearów, maks 1h wycieczki.", q:"Coves d'Artà Mallorca", pod:`Zatrzymaj się na chwilę przed wejściem i spójrz w dół. Stoisz w paszczy ogromnej groty wykutej w klifie, kilkadziesiąt metrów nad morzem, a za twoimi plecami otwiera się widok na turkusową zatokę Canyamel i przylądek Cap Vermell. Witaj w Coves d'Artà — jaskini, która od wieków rozpala wyobraźnię ludzi.
+
+Te pieczary nie są dziełem człowieka, lecz wody i czasu. Przez miliony lat krople nasączone wapieniem budowały tu las stalaktytów i stalagmitów, kolumn i kaskad skalnych. Najsłynniejsza z nich to potężny filar zwany Królową Kolumn — ma około dwudziestu dwóch metrów wysokości, jedna z najwyższych formacji tego typu w Europie. Gdy przewodnik na chwilę gasi światła, zapada absolutna ciemność, a potem kolejne reflektory rozświetlają komory tak, że masz wrażenie, jakbyś wszedł do wnętrza katedry wyrzeźbionej przez naturę.
+
+Ale Coves d'Artà to także historia. Kiedy w tysiąc dwieście dwudziestym dziewiątym roku Jakub Pierwszy Zdobywca wylądował na Majorce i ruszył na muzułmańskie wojska, część mieszkańców wyspy — mówi się, że nawet kilkuset — schroniła się właśnie w tych jaskiniach, licząc, że ciemność i labirynt komór ocalą im życie. Później przez stulecia groty służyły jako kryjówka przemytników, którzy ukrywali tu towar z dala od oczu władzy.
+
+W dziewiętnastym wieku jaskinia przyciągnęła naukowców. Eksplorował ją słynny francuski speleolog Édouard-Alfred Martel, ojciec nowoczesnego jaskiniowizmu, ten sam, który badał najsłynniejsze pieczary Europy. A pewna legenda — powtarzana z dumą przez miejscowych — głosi, że ogrom i tajemniczość Coves d'Artà zainspirowały Juliusza Verne'a, gdy pisał „Podróż do wnętrza Ziemi". Czy to prawda, czy piękna opowieść? Tego nikt nie potwierdzi. Ale gdy staniesz pod Królową Kolumn i spojrzysz w mrok ciągnący się w głąb skały, sam zaczniesz w to wierzyć.
+
+W środku panuje chłód — około dwudziestu stopni — niezależnie od skwaru na zewnątrz, więc w upalny dzień to także wytchnienie. Zwiedzanie odbywa się z przewodnikiem i trwa mniej więcej czterdzieści minut. Przewodnicy bywają tu prawdziwymi gawędziarzami, mówią kilkoma językami i potrafią zrobić z wizyty mały spektakl. Dla dzieci to wielka przygoda — schody, echo, gra świateł i poczucie, że schodzi się do innego świata.
+
+Praktycznie: jaskinie leżą przy plaży Canyamel, około trzydziestu pięciu minut jazdy z Can Picafort. Biletów zwykle nie trzeba rezerwować z wyprzedzeniem, wycieczki ruszają co kilkadziesiąt minut, ale przyjedź wcześniej, bo w środku dnia ustawiają się kolejki. Załóż buty z dobrą podeszwą — kamienne stopnie bywają wilgotne i śliskie. Świetnie łączy się to ze zwiedzaniem pobliskiego Capdepery albo dnia spędzonego w okolicach Artà.
+
+Kiedy wyjdziesz z powrotem na światło, przystań jeszcze przy wyjściu. Za sobą zostawiasz ciemność, która ukrywała uchodźców, przemytników i podobno natchnęła wielkiego pisarza. Przed tobą — błękit morza i słońce. Coves d'Artà to jedno z tych miejsc, gdzie historia, natura i legenda splatają się w jedno, w wilgotnym chłodzie skały, która pamięta więcej niż my wszyscy razem wzięci.`},
+     {n:"Artà — Sant Salvador", r:4.6, d:"~30 min", note:"Forteca-sanktuarium na wzgórzu z widokiem na całe wschodnie wybrzeże. Stare miasto z brukowanymi uliczkami, gratis. Łącz z Ses Paisses i Coves d'Artà na pełny dzień wschód.", q:"Santuari de Sant Salvador Artà Mallorca", pod:`Z daleka wygląda jak forteca z bajki: wzgórze nad miasteczkiem Artà, ukoronowane potężnymi, blankowanymi murami, do których prowadzą schody obsadzone cyprysami. To Santuari de Sant Salvador — miejsce, które przez wieki było jednocześnie świątynią, schronieniem i strażnicą.
+
+Zacznijmy od samego Artà, bo to jedno z najpiękniejszych miasteczek wschodniej Majorki. Wąskie, brukowane uliczki pną się pod górę, mijasz kamienne domy w odcieniach piaskowca, a w każdy wtorek plac wypełnia targ, na który schodzą się okoliczni rolnicy z warzywami, serami, oliwkami i wyrobami ze skóry. To miasteczko żyje własnym, niespiesznym rytmem, z dala od nadmorskiego zgiełku.
+
+A nad wszystkim góruje wzgórze sanktuarium. Co ciekawe, to miejsce było święte i strategiczne na długo przed chrześcijaństwem — już w epoce talajockiej, trzy tysiące lat temu, ludzie wykorzystywali ten punkt, bo stąd widać całą okolicę. Później, w czasach muzułmańskich, stała tu warownia, a po podboju wyspy przez Jakuba Pierwszego mury rozbudowano, by chronić mieszkańców. Gdy nadciągali korsarze albo zaraza pustoszyła dolinę, ludność chroniła się za tymi blankami jak w azylu. Wewnątrz murów wznosi się kościół, w obecnej formie przebudowany w dziewiętnastym wieku, z izbą pełną sakralnych skarbów, szat i relikwii.
+
+Wejdź na mury i obejdź je dookoła. Widok zapiera dech: pod tobą dachy Artà, dalej rozległa równina opadająca ku morzu, łagodne wzgórza Serra de Llevant, a przy dobrej pogodzie błękit zatoki. To jeden z tych punktów, z których rozumiesz geografię całej wschodniej części wyspy naraz. O zachodzie słońca kamienie nabierają miodowej barwy, a całe wzgórze tonie w ciepłym świetle.
+
+Dotrzeć tu można na dwa sposoby. Pieszo, od strony miasteczka, schodami drogi krzyżowej — to kilkanaście minut marszu w cieniu cyprysów, z których każdy zakręt odsłania coraz szerszą panoramę. Albo autem, drogą wokół wzgórza, jeśli oszczędzasz nogi. Na górze działa skromna kawiarnia, gdzie usiądziesz z kawą i widokiem.
+
+Praktycznie: wstęp jest bezpłatny, a samo wzgórze świetnie łączy się z dwoma sąsiednimi atrakcjami. U podnóża, dosłownie kilkaset metrów dalej, leży prehistoryczna osada Ses Païsses z cyklopowymi murami sprzed trzech tysięcy lat. A nieco dalej na wschód czekają zamek w Capdeperze i jaskinie Coves d'Artà. Można z tego ułożyć jeden bogaty dzień: poranek wśród kamieni epoki brązu, południe na murach sanktuarium, popołudnie w jaskini albo na plaży.
+
+Z Can Picafort dojedziesz tu w jakieś trzydzieści minut. Zaparkuj na obrzeżach starego miasta i wejdź pieszo — i tak warto przejść się tymi uliczkami. Załóż wygodne buty, bo bruk bywa nierówny, a do sanktuarium prowadzi pod górę.
+
+Kiedy będziesz stał na murach, z wiatrem we włosach i całą okolicą u stóp, pomyśl o wszystkich, którzy chronili się tu przez wieki: przed piratami, przed zarazą, przed niepewnym losem. Sant Salvador to nie tylko widokowy taras. To kamienna pamięć miasteczka, które przez stulecia spoglądało z tej góry, czy od strony morza nie nadciąga niebezpieczeństwo.`},
+     {n:"Capdepera Castle", r:4.5, d:"~35 min", note:"Średniowieczny zamek nad miasteczkiem, €3, widok do Minorki. Łatwy dla dzieci, 30–60 min zwiedzania. Blisko Cala Mesquida.", q:"Castell de Capdepera Mallorca", pod:`Na wzgórzu nad miasteczkiem Capdepera, na samym wschodnim krańcu Majorki, stoi coś rzadkiego: nie pojedyncza wieża, lecz cała ufortyfikowana osada zamknięta w obrębie murów. To Castell de Capdepera — średniowieczna twierdza, która kryje jedną z najpiękniejszych legend wyspy.
+
+Zamek powstał z woli króla Jakuba Drugiego Majorki, około roku tysiąc trzysetnego. Władca kazał przenieść okolicznych mieszkańców w bezpieczne miejsce na szczycie i otoczyć je murem — tak narodziła się warowna wioska, w której za blankami mieściły się domy, kościół i cysterny na wodę. Z tej wysokości strażnicy obejmowali wzrokiem całe wybrzeże, wypatrując żagli korsarzy, którzy przez stulecia byli prawdziwą zmorą wyspy.
+
+I tu zaczyna się legenda, którą w Capdeperze opowiada się do dziś. Pewnego razu pod mury podeszła wroga flota — w niektórych wersjach berberyjscy piraci, w innych wojska podczas oblężenia. Obrońcy, słabsi i mniej liczni, nie mieli szans w otwartej walce. W rozpaczy zwrócili się ku małej, gotyckiej figurce Matki Boskiej, którą czczono w zamkowej kaplicy — Mare de Déu de l'Esperança, Matki Bożej Nadziei. Modlili się żarliwie i wtedy, jak głosi opowieść, znad morza nagle nadciągła gęsta mgła, która spowiła całe wzgórze i ukryła miasteczko przed oczami napastników. Wróg, nie mogąc znaleźć celu, odstąpił. Figurka, która miała ocalić Capdeperę, do dziś stoi w kaplicy na terenie zamku.
+
+Spaceruj wzdłuż murów, wejdź na wieżę i rozejrzyj się. Pod tobą rozsypane białe domy Capdepery, dalej port Cala Rajada, a na horyzoncie — przy naprawdę czystym niebie — zarys sąsiedniej wyspy, Minorki. To jeden z niewielu punktów na Majorce, z których widać siostrzaną wyspę.
+
+Warto znać jeszcze jedną twarz tego miasteczka. Capdepera od pokoleń słynie z wyplatania wyrobów z liści palmy karłowatej — rzemiosła zwanego llatra. Z tych włókien powstają kosze, kapelusze, torby i maty, a tradycja jest tak żywa, że co roku miasteczko organizuje wielki jarmark średniowieczny, podczas którego uliczki wypełniają stragany, muzyka, rzemieślnicy i inscenizacje z epoki.
+
+Praktycznie: bilet do zamku jest niedrogi, kilka euro, płatność zwykle kartą. Z Can Picafort dojedziesz tu w jakieś trzydzieści pięć minut. Sam zamek zwiedzisz w pół godziny do godziny, ale uwaga — czasem znalezienie miejsca do parkowania w wąskich uliczkach miasteczka zajmuje dłużej niż samo zwiedzanie, więc uzbrój się w cierpliwość i celuj w parking poniżej murów. Załóż czapkę i weź wodę, bo na górze nie ma cienia, a kamienie potrafią mocno nagrzać się w słońcu. W okolicy znajdują się też latarnia Capdepera i piękne plaże Cala Agulla i Cala Mesquida, więc łatwo połączyć zamek z kąpielą.
+
+Kiedy będziesz schodził w dół wąskimi uliczkami, obejrzyj się na mury górujące nad miasteczkiem. Pomyśl o nocy, gdy znad morza nadciągnęła ratunkowa mgła, i o pokoleniach, które za tymi blankami szukały schronienia. Capdepera to nie tylko ładny widok — to opowieść o strachu, nadziei i cudzie, zaklęta w kamieniu.`},
+     {n:"Cap de Formentor", r:null, d:"~45 min", note:"Latarnia na klifach 200 m nad morzem, epicki widok. Sprawdź dostęp: latem może wymagać busa z Barcares. Wcześnie rano — pusta droga, złota godzina.", warn:"Latem droga częściowo zamknięta dla aut — sprawdź przed wyjazdem.", q:"Cap de Formentor lighthouse Mallorca", pod:`Ruszamy na samą krawędź wyspy. Z zatoki Alcúdii jedziemy na północ, przez Pollençę, a potem droga zaczyna się wspinać i wić nad morzem ku miejscu, w którym Majorka po prostu się kończy — ku Cap de Formentor. To długi, skalisty półwysep wbijący się w morze jak ostrze, smagany wiatrem z obu stron naraz. Miejscowi mówią, że tu spotykają się wiatry, i kiedy wysiądziesz z auta, od razu zrozumiesz dlaczego.
+
+Drogę, którą jedziemy, zaprojektował w latach trzydziestych inżynier Antonio Parietti — ten sam, który stworzył słynną serpentynę do Sa Calobry. Tutaj poprowadził asfalt po krawędzi klifów, nad przepaściami spadającymi prosto do wody. Po drodze koniecznie zatrzymaj się na punkcie widokowym Es Colomer — patrzysz stąd na samotną skałę sterczącą z morza i na poszarpane zatoki. Tuż nad nim, na wzgórzu, sterczy kamienna wieża Talaia d'Albercutx z szesnastego wieku. Takie wieże stawiano wzdłuż całego wybrzeża, by ostrzegać przed korsarzami z Afryki Północnej: gdy wartownik dostrzegał piracki żagiel, zapalał ogień, a sygnał biegł od wieży do wieży w głąb lądu, dając wsiom czas na ucieczkę.
+
+Na samym końcu cypla, na wysokości około dwustu dziesięciu metrów nad falami, stoi latarnia morska. Zbudował ją inżynier Emili Pou, a światło zapłonęło w tysiąc osiemset sześćdziesiątym trzecim roku — początkowo zasilane oliwą z oliwek. Pomyśl, czego to wymagało: zanim powstała droga, każdy kamień, każdą belkę i każdą beczkę oliwy trzeba było dowieźć morzem i wciągnąć po stromiznie. Latarnik spędzał tu samotne tygodnie, mając za towarzystwo tylko wiatr i światło, które co noc słał w ciemność dla żeglarzy.
+
+Formentor ma też swoją złotą, kosmopolityczną legendę. W tysiąc dziewięćset dwudziestym dziewiątym roku argentyński poeta i marzyciel Adan Diehl wzniósł tu, wśród sosen nad ukrytą plażą, luksusowy Hotel Formentor. Wielki, elegancki hotel na krańcu trudno dostępnej wyspy był aktem szaleństwa — a jednak ściągnął tu największych: malującego pejzaże Winstona Churchilla, gwiazdy kina jak Grace Kelly, arystokratów i dyplomatów. W tysiąc dziewięćset sześćdziesiątym pierwszym roku hotel wpisał się w historię literatury: ustanowiono tu nagrodę Prix Formentor, której pierwszą edycję podzielili między siebie Jorge Luis Borges i Samuel Beckett.
+
+Stań na cyplu i spójrz wstecz na wyspę. Zobaczysz całą Serra de Tramuntana ciągnącą się ku horyzontowi, błękit zatoki Pollença i bezkres otwartego morza. Ukryta poniżej, wśród sosen, plaża Formentor uchodzi za jedną z najpiękniejszych na wyspie.
+
+Ważna uwaga praktyczna: z Can Picafort to jakieś czterdzieści pięć minut drogi, ale latem, mniej więcej od maja do października, dojazd na sam cypel prywatnym autem bywa zakazany — ze względu na korki na wąskiej szosie. Sprawdź aktualne zasady przed wyjazdem; ostatni odcinek pokonasz wtedy autobusem wahadłowym z plaży albo z Port de Pollença. Najlepiej przyjedź wcześnie rano albo o zachodzie, gdy klify płoną pomarańczem, a tłumy znikają. Wtedy Formentor pokazuje swoją prawdziwą twarz: dziką, samotną i piękną — koniec lądu, za którym jest już tylko wiatr i woda.`},
+     {n:"Platja des Coll Baix", r:4.5, d:"~30 min", gem:true, note:"Sekretna plaża za 45-min hike przez las sosnowy i skały. Brak hamakow, brak barów, krystaliczna woda. Jedno z najpiękniejszych miejsc wyspy. Odpowiednie buty — klapki nie przejdą.", warn:"Parking = znana strefa włamań do aut. Zostawiaj tylko absolutne minimum w samochodzie.", q:"Platja des Coll Baix Alcúdia Mallorca", pod:`Ta wyprawa to mały sekret. Większość gości zatoki Alcúdii nie ma pojęcia, że tuż obok, za zalesionym półwyspem, kryje się jedna z najpiękniejszych i najdzikszych plaż całej wyspy — Platja des Coll Baix. Nie dotrzesz tu autem. I właśnie dlatego jest taka, jaka jest.
+
+Plaża leży u stóp półwyspu La Victòria, masywu wyrastającego z morza na wschód od Alcúdii. To miejsce o ciekawej, częściowo wojskowej przeszłości — sąsiedni przylądek Cap des Pinar przez dziesięciolecia był terenem zamkniętym, strefą wojskową, co paradoksalnie ocaliło tę okolicę przed zabudową. Dziś to dziki, sosnowy raj. Po drodze możesz zajrzeć do Ermita de la Victòria — siedemnastowiecznej pustelni, która w czasach najazdów korsarzy służyła okolicznym mieszkańcom jako schronienie i punkt obronny.
+
+Żeby dotrzeć na plażę, dojeżdżasz autem do parkingu na końcu drogi, a potem zaczyna się przygoda. Najpierw idziesz leśną ścieżką wśród sosen — jakieś trzydzieści, czterdzieści pięć minut łagodnej wędrówki, w cieniu, z zapachem żywicy w powietrzu. Potem ścieżka opada stromo w dół, a ostatni odcinek to zejście po dużych kamieniach, które wymaga uwagi i rąk do pomocy. I wtedy, zza skał, otwiera się ona: półksiężyc jasnego, grubego piasku i kamieni, woda w odcieniach od szmaragdu po głęboki granat, a nad wszystkim strome, zalesione zbocza. Brak barów, brak leżaków, brak parasoli. Tylko morze, cisza i poczucie, że trafiłeś do miejsca, którego nie tknął masowy ruch.
+
+Właśnie ta dzikość jest największym skarbem Coll Baix — i jednocześnie wymaga od ciebie samodzielności. Zabierz wodę, jedzenie, czapkę i wszystko, czego możesz potrzebować, bo na miejscu nie kupisz niczego. Woda bywa głębsza i chłodniejsza niż na płytkich plażach zatoki, a dno kamieniste, więc buty do wody się przydadzą.
+
+I teraz najważniejsze ostrzeżenie, którego nie wolno zlekceważyć: parking przy szlaku to znana strefa włamań do samochodów. Złodzieje wybijają szyby i przeszukują auta, gdy turyści schodzą na plażę. Nie zostawiaj w środku absolutnie niczego cennego — żadnych toreb, plecaków, dokumentów, sprzętu. Najlepiej zabierz wszystko ze sobą albo nie zostawiaj w aucie nic, co kusi oko. Lepiej dźwigać plecak na plażę niż wrócić do wybitej szyby.
+
+Praktycznie: z Can Picafort to około trzydziestu minut do parkingu plus marsz. Załóż solidne buty — klapki tu naprawdę nie przejdą, zwłaszcza na końcowym zejściu po skałach. Wyrusz rano, bo parking jest mały i szybko się zapełnia, a w upale wędrówka bywa męcząca. Z dziećmi oceń realnie ich siły — to nie jest plaża „wysiadasz z auta i jesteś".
+
+Ale jeśli dasz radę, nagroda jest ogromna. Siądziesz na tej ukrytej plaży, otoczony klifami i lasem, z wodą czystą jak szkło, i poczujesz coś, co na zatłoczonej Majorce zdarza się coraz rzadziej: że masz kawałek dzikiego wybrzeża niemal wyłącznie dla siebie. Coll Baix nie przychodzi łatwo — i właśnie dlatego zostaje w pamięci.`},
+     {n:"Talaia de Son Jaumell", r:4.8, d:"~40 min", gem:true, note:"Średniowieczna wieża strażnicza z widokiem 360° — w pogodny dzień widać Minorkę. Hike ~40 min od Cala Mesquida, stromy odcinek na końcu (ręce się przydają). Wschód słońca tu to osobne przeżycie.", q:"Talaia de Son Jaumell Capdepera Mallorca", pod:`Na wschodnim krańcu Majorki, nad plażami Capdepery, wznosi się skalisty szczyt zwieńczony samotną, okrągłą wieżą. To Talaia de Son Jaumell — dawna wieża strażnicza, a dziś jeden z najpiękniejszych punktów widokowych całej wyspy, o którym wie zaskakująco niewielu turystów.
+
+Żeby zrozumieć, po co tu stoi, trzeba cofnąć się do czasów, gdy największym zagrożeniem dla wyspiarzy nie była burza, lecz człowiek. Przez stulecia wybrzeża Majorki nękali korsarze z Afryki Północnej: przypływali znienacka, palili wioski, rabowali i uprowadzali ludzi w niewolę. Odpowiedzią była sieć kamiennych wież obserwacyjnych rozsianych po najwyższych punktach wybrzeża. Talaia de Son Jaumell, wzniesiona mniej więcej w szesnastym lub siedemnastym wieku, była jednym z ogniw tego łańcucha. Wartownik wypatrywał z niej pirackich żagli, a gdy je dostrzegał, zapalał ogień. Sygnał biegł od wieży do wieży wzdłuż całego wybrzeża, ostrzegając kolejne osady — to był majorkański system alarmowy sprzed wieków, działający z prędkością światła ognia.
+
+Z tej wieży roztacza się widok absolutnie wyjątkowy: pełne trzysta sześćdziesiąt stopni. Pod tobą poszarpane wybrzeże z zatokami Cala Mesquida i Cala Agulla, dalej miasteczko i zamek Capdepery, latarnia na przylądku, a przy czystym niebie — zarys Minorki na horyzoncie. To jeden z nielicznych punktów, z których naprawdę widać sąsiednią wyspę. O wschodzie słońca, gdy pierwsze promienie zapalają morze, miejsce robi się wręcz nierzeczywiste — ci, którzy się tu wdrapali o świcie, mówią o nim jak o osobnym przeżyciu.
+
+Ale to perełka, która wymaga wysiłku. Na szczyt nie prowadzi droga — trzeba podejść pieszo, najczęściej od strony plaży Cala Mesquida albo Cala Agulla. Marsz zajmuje jakieś czterdzieści minut do godziny i przez większość jest przyjemny, ale ostatni odcinek, jakieś sto, dwieście metrów, robi się stromy i kamienisty — miejscami trzeba wspomóc się rękami. To nie jest trudna wspinaczka, ale wymaga uwagi i porządnych butów. W klapkach ani się waż.
+
+Praktycznie: z Can Picafort dojedziesz w okolice Cala Mesquida w jakieś czterdzieści minut, zostawiasz auto i dalej idziesz na piechotę. Wyrusz wcześnie rano albo pod wieczór — nie tylko dla światła i widoków, lecz także dlatego, że na szlaku nie ma cienia, a w środku dnia słońce daje tu mocno w kość. Zabierz dużo wody, czapkę i krem. Z dziećmi oceń realnie ich siły, bo końcowy odcinek może być dla najmłodszych za stromy.
+
+I jeszcze jedno: ścieżki w tej okolicy potrafią się rozgałęziać, a część szlaków to dzikie, kozie ścieżyny. Warto mieć w telefonie mapę trekkingową, żeby nie zboczyć z trasy.
+
+Kiedy w końcu staniesz przy tej kamiennej wieży, z wiatrem szarpiącym włosy i całym wschodnim krańcem wyspy u stóp, pomyśl o wartownikach, którzy spędzali tu długie noce, wpatrzeni w ciemne morze. Czuwali, by ich bliscy w dolinie mogli spać spokojnie. Dziś ty wchodzisz tu po coś zupełnie innego — po widok i ciszę. Ale wieża stoi tak samo jak wtedy, niewzruszona, patrząc w stronę, z której kiedyś przychodziło niebezpieczeństwo.`},
+     {n:"Ermita de Betlem", r:4.5, d:"~40 min", gem:true, note:"Odległy klasztor na klifach — 8 km wąską górską drogą przez las. Absolutna cisza i widok na zatokę. Prawie nieznane wśród turystów.", q:"Ermita de Betlem Artà Mallorca", pod:`Jeśli masz ochotę na dzień z dala od plażowego gwaru, ruszamy w góry. Z zatoki Alcúdii kierujemy się ku miasteczku Artà, a stamtąd wąska, kręta droga zaczyna piąć się w pasmo Serra de Llevant — do Ermita de Betlem, jednej z najbardziej odludnych i najcichszych pustelni całej Majorki.
+
+Sama droga jest częścią przygody: jakieś osiem kilometrów serpentyn wśród skał i niskiego lasu, z widokami, od których zapiera dech. Im wyżej, tym ciszej, tym mniej ludzi, aż w pewnym momencie świat na dole znika, a ty masz wrażenie, że wjeżdżasz do zupełnie innej epoki.
+
+Pustelnię założono w tysiąc osiemset piątym roku. Grupa pustelników, duchowych spadkobierców tradycji świętych Pawła i Antoniego, szukała miejsca jak najdalej od zgiełku — i trudno o lepszy wybór. Zakonnicy żyli tu w skrajnej prostocie: wydarli górze maleńkie tarasowe poletka, hodowali kilka zwierząt, czerpali wodę ze źródła zwanego Font de s'Ermita, modlili się i milczeli. Ich cały świat zamykał się w tych murach i w widoku rozciągającym się aż po zatokę Alcúdii — tę samą, nad którą teraz nocujesz.
+
+Nazwa Betlem, czyli Betlejem, nie jest przypadkowa. W sercu kaplicy kryje się scena narodzenia umieszczona w czymś na kształt groty — jakby fragment betlejemskiej jaskini przeniesiony w góry Artà. Wejdź do środka, gdy nikogo nie ma. Półmrok, chłód kamienia, zapach świec. Usiądź na ławce i posłuchaj. Usłyszysz tylko własny oddech i czasem wiatr ocierający się o mury. Pielgrzymi, którzy tu docierają, często mówią to samo: że poczuli się bliżej czegoś, czego nie umieją nazwać.
+
+Pustelnia jest też bramą do dzikich zakątków wybrzeża. Z okolicy prowadzą szlaki ku ukrytym plażom półwyspu Artà — jak kamienista Platja des Verger czy zatoczka Es Caló — do których nie dojedziesz autem, tylko dojdziesz pieszo, przez las i skały. To jeden z ostatnich naprawdę nietkniętych fragmentów wyspy, częściowo objęty ochroną przyrodniczą jako park natury.
+
+Wokół samej pustelni jest skromnie i — przyznajmy szczerze — miejscami zaniedbane. Część terenu bywa ogrodzona, fontanna ze statuą Marii nie zawsze w najlepszym stanie. Ale właśnie ta surowość, ten brak turystycznego wygładzenia, sprawiają, że Betlem jest prawdziwe. To nie atrakcja przygotowana pod sprzedaż biletów, lecz miejsce, które od ponad dwustu lat żyje własnym, powolnym rytmem.
+
+Praktycznie: z Can Picafort to jakieś czterdzieści minut jazdy. Droga w górę jest wąska, więc prowadź ostrożnie — gdy z naprzeciwka nadjedzie inne auto, ktoś musi cofnąć się do mijanki; nie spiesz się. Pustelnia bywa otwarta w ciągu dnia, ale godziny potrafią być kapryśne, więc warto je sprawdzić. Weź wodę i wygodne buty, jeśli chcesz przejść okolicznymi ścieżkami.
+
+Wracając krętą drogą w dół, zatrzymaj się przy którymś z zakrętów i obejrzyj za siebie: mały biały budynek przyklejony do góry, otoczony bezkresem skał i nieba. Pomyśl o ludziach, którzy wybrali to miejsce na całe życie — z dala od wszystkiego, blisko jedynie ciszy. W świecie, który nigdy nie milczy, Ermita de Betlem oferuje rzecz dziś bezcenną: spokój, którego nie da się kupić.`},
+     {n:"Finca Raixa (Bunyola)", r:4.7, d:"~55 min", gem:true, note:"Historyczna posiadłość z XVIII-wiecznym ogrodem, oliwnikami, fontanną i stawem. Darmowe wstęp i parking. Po drodze lub w połączeniu z Sóllerem.", shut:"pon i niedz zamknięte", q:"Raixa Bunyola Mallorca", pod:`Po drodze między Palmą a Sóller, u stóp gór Tramuntany, kryje się miejsce, które wygląda, jakby ktoś przeniósł kawałek toskańskiej willi w sam środek majorkańskich oliwników. To Finca Raixa — historyczna posiadłość z ogrodami w stylu włoskiego renesansu, jedno z najpiękniejszych i wciąż mało obleganych miejsc na wyspie.
+
+Jej historia sięga znacznie głębiej, niż mogłoby się wydawać. Sama nazwa, Raixa, wywodzi się z arabskiego — w czasach, gdy wyspą władali muzułmanie, istniała tu andaluzyjska farma, korzystająca z przemyślnego systemu nawadniania, który pozwalał zazielenić suchy stok. Te wodne tradycje przetrwały wieki i do dziś sercem posiadłości jest woda: kanały, fontanny i wielki kamienny zbiornik na szczycie ogrodu.
+
+Prawdziwy rozkwit przyszedł jednak pod koniec osiemnastego wieku, za sprawą barwnej postaci — kardynała Antonia Despuiga i Dameto. Ten majorkański duchowny i człowiek renesansu spędził lata we Włoszech, gdzie zachwycił się antykiem i ogrodami rzymskich willi. Wróciwszy, postanowił przekształcić Raixę na ich wzór. Sprowadził rzeźby i antyczne znaleziska — część pochodziła z wykopalisk pod Rzymem — i rozmieścił je wśród tarasów, schodów i fontann. Powstał ogród, w którym kamienne posągi spoglądają spomiędzy cyprysów i drzew cytrusowych, a woda spływa kaskadami po zboczu. To była rezydencja marzeń oświeconego arystokraty, miejsce do rozmów o sztuce, filozofii i historii.
+
+Spaceruj bez pośpiechu. Wejdź po monumentalnych schodach na górny taras, do wielkiego zbiornika wodnego, w którym przeglądają się niebo i drzewa, i odwróć się: pod tobą rozciąga się cały ogród, a dalej dolina i góry. W samym budynku posiadłości urządzono dziś wystawę poświęconą Serra de Tramuntana — jej przyrodzie, historii i ludziom, którzy ją kształtowali. Wokół ciągną się gaje oliwne ze starymi, powykręcanymi drzewami, z których część pamięta czasy znacznie dawniejsze niż kardynał.
+
+Najlepsze jest to, że dziś Raixa należy do wszystkich. Na początku dwudziestego pierwszego wieku posiadłość wykupiły władze wyspy i otworzyły ją dla publiczności. Wstęp jest bezpłatny, parking również — rzadki luksus na Majorce.
+
+Praktycznie: Raixa leży w gminie Bunyola, przy drodze z Palmy do Sóller, jakieś pięćdziesiąt pięć minut jazdy z Can Picafort. Dojazd kończy się odcinkiem polnej, kamienistej drogi wśród oliwek — jedź powoli, ale spokojnie, da się tędy przejechać zwykłym autem. Bardzo ważne: sprawdź dni otwarcia, bo posiadłość jest zamknięta w poniedziałki i niedziele, a w pozostałe dni czynna tylko do wczesnego popołudnia. Weź wodę, bo na miejscu nie ma kawiarni; za to idealnie nadaje się tu piknik w cieniu drzew. Świetnie łączy się tę wizytę z wyprawą do pobliskiego Sóller.
+
+Kiedy będziesz schodził z górnego tarasu, mijając kamienne posągi wśród zieleni, pomyśl o kardynale, który dwieście lat temu chciał stworzyć tu kawałek Włoch na śródziemnomorskiej wyspie — i o arabskich ogrodnikach, którzy wieki wcześniej nauczyli tę ziemię gromadzić wodę. Raixa to spotkanie kultur, epok i marzeń, ukryte na zboczu, którego większość turystów nigdy nie odnajduje.`}
+   ]},
+
+  {id:"ret", ico:"✈️", lab:"Powrót", type:"logi",
+   day:"Czwartek · 18 czerwca", title:"Powrót do Poznania", sub:"Wymeldowanie, zwrot auta i lot wieczorem.",
+   steps:[
+     {time:"do 12:00", title:"Wymeldowanie z hotelu", where:"Es Baulo Petit Hotel",
+      list:["Po wymeldowaniu jest jeszcze pół dnia — ostatnia plaża albo Alcúdia przed lotem."]},
+     {time:"16:00", title:"Zwrot auta · Omoda 5", where:"Record Go · lotnisko Palma (PMI)",
+      conf:"787193328",
+      list:["Zatankuj do pełna i zrób zdjęcia auta przed oddaniem.","Z Can Picafort na lotnisko licz ~50 min — wyjedź z zapasem."],
+      mapq:"Record Go Palma de Mallorca Airport"},
+     {time:"21:15", title:"Lot · Palma → Poznań", where:"Lot bezpośredni",
+      conf:"W2ZZ6G",
+      list:["Odprawa online wcześniej; bądźcie na lotnisku ~2 h przed odlotem.","Numer rezerwacji obok — dotknij, by skopiować."]}
+   ],
+   bikeNote:{title:"Zwrot rowerów", text:"Oddaj rowery rano w dniu wylotu lub dzień wcześniej. Wypożyczalnie zwykle czynne od 9:00, a te z dowozem odbiorą sprzęt spod hotelu — umów się wcześniej.", links:[{n:"Wheels Sport", q:"Wheels Sport Can Picafort"}]}}
+];
+
+/* ---------- safe storage (works hosted, no-op in sandbox) ---------- */
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)) }catch(e){ return mem[k] } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){ mem[k]=v } }
+};
+const mem = {};
+
+/* ---------- render ---------- */
+const main = document.getElementById('main');
+const nav = document.getElementById('nav');
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function renderLogi(t){
+  const steps = t.steps.map((s,i)=>{
+    const key = `done:${t.id}:${i}`;
+    const done = store.get(key) ? 'done' : '';
+    const mapBtn = (s.mapq) ? `<a class="btn btn-map" target="_blank" rel="noopener" href="${maps(s.mapq)}">📍 Mapy</a>` : '';
+    const conf = s.conf ? `<span class="badge b-conf" data-copy="${esc(s.conf)}">📋 ${esc(s.conf)}</span>` : '';
+    const warn = s.warn ? `<div class="badge b-warn">⚠️ ${esc(s.warn)}</div>` : '';
+    const tip = s.tip ? `<div class="badge b-tip">💡 ${esc(s.tip)}</div>` : '';
+    const list = s.list ? `<ul>${s.list.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>` : '';
+    return `<div class="step ${done}" data-key="${key}">
+      <div class="node">${done?'✓':''}</div>
+      <div class="card">
+        <span class="time-chip">🕘 ${esc(s.time)}</span>
+        <h4>${esc(s.title)}</h4>
+        ${s.where?`<div class="where">${esc(s.where)}</div>`:''}
+        ${list}
+        ${conf}${warn}${tip}
+        <div class="actions">
+          ${mapBtn}
+          <button class="btn btn-check ${done?'on':''}" data-check="${key}">${done?'✓ Zrobione':'Oznacz'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="sec-head"><div class="day">${esc(t.day)}</div><h2>${esc(t.title)}</h2><p>${esc(t.sub)}</p></div>
+    <div class="timeline">${steps}</div>
+    ${t.routeNote?renderRouteNote(t.routeNote):''}
+    ${t.bikeNote?renderBikeNote(t.bikeNote):''}`;
+}
+
+function renderBikeNote(b){
+  const links = b.links.map(l=>`<a class="btn btn-map" target="_blank" rel="noopener" href="${maps(l.q)}">📍 ${esc(l.n)}</a>`).join('');
+  return `<div class="base bike-note"><h3>🚲 ${esc(b.title)}</h3><p class="note">${esc(b.text)}</p><div class="actions">${links}</div></div>`;
+}
+
+function bikeCard(p){
+  const map = `<a class="btn btn-map" target="_blank" rel="noopener" href="${maps(p.q)}">📍 Mapy</a>`;
+  const web = `<a class="btn" target="_blank" rel="noopener" href="${websearch(p.web)}">🌐 Strona</a>`;
+  const tel = p.phone?`<a class="badge b-conf" href="tel:${p.phone.replace(/\s/g,'')}">📞 ${esc(p.phone)}</a>`:'';
+  const tags = p.d?`<span class="tag dist">📍 ${esc(p.d)}</span>`:'';
+  return `<div class="place">
+    <div class="top"><h4>${esc(p.n)}</h4><span class="rate">★ ${p.r.toFixed(1)}</span></div>
+    <div class="tags">${tags}</div>
+    <p class="note">${esc(p.note)}</p>
+    ${tel}
+    <div class="actions">${map}${web}</div>
+  </div>`;
+}
+
+const PODS={}; let podSeq=0;
+function tripCard(p){
+  const map = `<a class="btn btn-map" target="_blank" rel="noopener" href="${maps(p.q)}">📍 Mapy</a>`;
+  const img = `<a class="btn" target="_blank" rel="noopener" href="${gimg(p.q)}">🖼️ Zdjęcia</a>`;
+  let pod='';
+  if(p.pod){ const id='pod'+(++podSeq); PODS[id]={title:p.n, text:p.pod}; pod=`<button class="btn btn-pod" data-pod="${id}">🎧 Podcast</button>`; }
+  const gemTag = p.gem?`<span class="tag gem">🔮 perełka</span>`:'';
+  const driveTag = p.d?`<span class="tag dist">🚗 ${esc(p.d)}</span>`:'';
+  const shutTag = p.shut?`<span class="tag shut">⛔ ${esc(p.shut)}</span>`:'';
+  const warn = p.warn?`<div class="badge b-warn">⚠️ ${esc(p.warn)}</div>`:'';
+  const ratingEl = p.r?`<span class="rate">★ ${p.r.toFixed(1)}</span>`:'<span class="rate">— odkryj</span>';
+  return `<div class="place">
+    <div class="top"><h4>${esc(p.n)}</h4>${ratingEl}</div>
+    <div class="tags">${driveTag}${gemTag}${shutTag}</div>
+    <p class="note">${esc(p.note)}</p>
+    ${warn}
+    <div class="actions">${map}${img}${pod}</div>
+  </div>`;
+}
+
+function renderRouteNote(b){
+  const links = b.links.map(l=>`<a class="btn btn-map" target="_blank" rel="noopener" href="${maps(l.q)}">📍 ${esc(l.n)}</a>`).join('');
+  return `<div class="base bike-note"><h3>🍽️ ${esc(b.title)}</h3><p class="note">${esc(b.text)}</p><div class="actions">${links}</div></div>`;
+}
+
+function placeCard(p){
+  const map = `<a class="btn btn-map" target="_blank" rel="noopener" href="${maps(p.q)}">📍 Mapy</a>`;
+  const img = `<a class="btn" target="_blank" rel="noopener" href="${gimg(p.q)}">🖼️ Zdjęcia</a>`;
+  const tags = [
+    p.d?`<span class="tag dist">📍 ${esc(p.d)}</span>`:'',
+    p.eur?`<span class="tag eur">${esc(p.eur)}</span>`:'',
+    p.shut?`<span class="tag shut">⛔ ${esc(p.shut)}</span>`:''
+  ].join('');
+  return `<div class="place">
+    <div class="top"><h4>${esc(p.n)}</h4><span class="rate">★ ${p.r.toFixed(1)}</span></div>
+    <div class="tags">${tags}</div>
+    <p class="note">${esc(p.note)}</p>
+    <div class="actions">${map}${img}</div>
+  </div>`;
+}
+
+function renderStay(t){
+  const b=t.base;
+  const stars = b.stars?`<span class="stars">${'★'.repeat(b.stars)}</span>`:'';
+  const rows = b.rows.map(r=>`<div class="kv"><span class="k">${esc(r[0])}</span><span class="v">${esc(r[1])}</span></div>`).join('');
+  const poi = t.poi.map(placeCard).join('');
+  const eat = t.eat.map(placeCard).join('');
+  const bike = (t.bike||[]).map(bikeCard).join('');
+  const trip = (t.trips||[]).map(tripCard).join('');
+  return `<div class="sec-head"><div class="day">${esc(t.day)}</div><h2>${esc(t.title)}</h2><p>${esc(t.sub)}</p></div>
+    <div class="base"><h3>${esc(b.name)} ${stars}</h3><div class="sub">${esc(b.sub)}</div>${rows}</div>
+    <div class="seg" data-seg="${t.id}">
+      <button class="on" data-list="poi">🗺️ Atrakcje</button>
+      <button data-list="eat">🍽️ Knajpy</button>
+      <button data-list="bike">🚲 Rowery</button>
+      <button data-list="trip">🚗 Wycieczki</button>
+    </div>
+    <div data-pane="poi">${poi}</div>
+    <div data-pane="eat" style="display:none">${eat}</div>
+    <div data-pane="bike" style="display:none">${bike}</div>
+    <div data-pane="trip" style="display:none">${trip}</div>`;
+}
+
+// build sections + nav
+TABS.forEach((t,idx)=>{
+  const sec=document.createElement('section');
+  sec.id='sec-'+t.id;
+  sec.innerHTML = t.type==='logi'?renderLogi(t):renderStay(t);
+  if(idx===0) sec.classList.add('active');
+  main.appendChild(sec);
+
+  const btn=document.createElement('button');
+  if(idx===0) btn.classList.add('on');
+  btn.dataset.go=t.id;
+  btn.innerHTML=`<span class="ico">${t.ico}</span><span class="lab">${esc(t.lab)}</span>`;
+  nav.appendChild(btn);
+});
+
+/* ---------- auto-tab by date ---------- */
+function autoTab(){
+  const now=new Date();
+  const yr=now.getFullYear(), mo=now.getMonth()+1, d=now.getDate();
+  let tab='arr'; // default: show arrival
+  if(yr===2026 && mo===6){
+    if(d===6)       tab='arr';
+    else if(d<=12)  tab='finca';
+    else if(d===13) tab='swap';
+    else if(d<=17)  tab='picafort';
+    else            tab='ret';
+  } else if(new Date()>new Date('2026-06-18T23:59:00+02:00')){
+    tab='ret'; // after trip — show return tab
+  }
+  go(tab);
+}
+autoTab();
+
+/* ---------- interactions ---------- */
+function go(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('active', s.id==='sec-'+id));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.go===id));
+  document.getElementById('main').scrollTo?.(0,0);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+let toastT;
+function toast(msg){
+  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),1400);
+}
+
+document.addEventListener('click',(e)=>{
+  const goBtn=e.target.closest('[data-go]');
+  if(goBtn){ go(goBtn.dataset.go); return; }
+
+  const seg=e.target.closest('[data-list]');
+  if(seg){
+    const wrap=seg.closest('.seg'); const sec=wrap.parentElement;
+    wrap.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b===seg));
+    sec.querySelectorAll('[data-pane]').forEach(p=>p.style.display = (p.dataset.pane===seg.dataset.list)?'':'none');
+    return;
+  }
+
+  const chk=e.target.closest('[data-check]');
+  if(chk){
+    const key=chk.dataset.check; const now=!store.get(key); store.set(key, now);
+    const step=document.querySelector(`.step[data-key="${key}"]`);
+    step.classList.toggle('done', now);
+    step.querySelector('.node').textContent = now?'✓':'';
+    chk.classList.toggle('on', now); chk.textContent = now?'✓ Zrobione':'Oznacz';
+    return;
+  }
+
+  const cp=e.target.closest('[data-copy]');
+  if(cp){
+    const v=cp.dataset.copy;
+    (navigator.clipboard?.writeText(v) || Promise.reject()).then(()=>toast('Skopiowano: '+v)).catch(()=>toast(v));
+    return;
+  }
+
+  const pod=e.target.closest('[data-pod]');
+  if(pod){ openPod(pod.dataset.pod); return; }
+  if(e.target.id==='podCopy'){ copyPod(); return; }
+  if(e.target.id==='podClose' || e.target.id==='podModal'){ closePod(); return; }
+});
+
+let curPod=null;
+const podModal=document.getElementById('podModal');
+function openPod(id){
+  const p=PODS[id]; if(!p) return; curPod=id;
+  document.getElementById('podTitle').textContent=p.title;
+  document.getElementById('podBody').textContent=p.text;
+  document.getElementById('podBody').scrollTop=0;
+  podModal.classList.add('open');
+}
+function closePod(){ podModal.classList.remove('open'); }
+function copyPod(){
+  if(!curPod) return; const t=PODS[curPod].text;
+  (navigator.clipboard?.writeText(t) || Promise.reject())
+    .then(()=>toast('Skopiowano podcast — wklej do ElevenReader'))
+    .catch(()=>toast('Zaznacz i skopiuj tekst ręcznie'));
+}
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closePod(); });
+
+/* ---------- countdown ---------- */
+function tickCountdown(){
+  const dep=new Date('2026-06-06T10:10:00+02:00');
+  const now=new Date();
+  const diff=dep-now;
+  const el=document.getElementById('cd');
+  if(diff<=0){ el.textContent='W trakcie podróży'; return; }
+  const d=Math.floor(diff/864e5), h=Math.floor(diff%864e5/36e5);
+  el.textContent = d>0 ? `Do wylotu: ${d} dni ${h} h` : `Do wylotu: ${h} h`;
+}
+tickCountdown(); setInterval(tickCountdown,60000);
+
+/* ---------- service worker ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
